@@ -36,6 +36,7 @@ export class TimeShareDrawer extends Drawer {
   protected data: TimeShareData[]
   constructor(chart: Chart, data: TimeShareData[] = []) {
     super(chart, data)
+    this.xTickFormatter = this.xTickFormatter.bind(this)
     this.context = chart.context
     this.titleDrawer = new ChartTitle(
       this.context,
@@ -102,6 +103,19 @@ export class TimeShareDrawer extends Drawer {
       right: this.deltaInPercentage(value)
     }
   }
+  public getXAxisDetail(i: number): string {
+    return this.xTickFormatter(i)
+  }
+  protected xTickFormatter(value: number, i?: number) {
+    const d = new Date()
+    const data = this.data[value]
+    if (data) {
+      d.setTime(data.time * 60 * 1000)
+      return formateDate(d, 'HH:mm')
+    } else {
+      return ''
+    }
+  }
   protected drawYAxis() {
     const lastPrice = this.chart.options.lastPrice
     const tickValues = divide(this.bottomValue(), this.topValue()).map(n => ({
@@ -144,16 +158,7 @@ export class TimeShareDrawer extends Drawer {
       this.chart.options.resolution,
       true,
       TIME_SHARE_THEME.gridLine,
-      (t, i) => {
-        const d = new Date()
-        const data = this.data[t]
-        if (data) {
-          d.setTime(data.time * 60 * 1000)
-          return formateDate(d, 'HH:mm')
-        } else {
-          return ''
-        }
-      }
+      this.xTickFormatter
     )
   }
   protected drawAxes() {

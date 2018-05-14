@@ -6,9 +6,10 @@
   }
 }
 .chart-detail {
+  box-sizing: border-box;
   position: absolute;
   padding: 8px;
-  width: 130px;
+  width: 110px;
   background: rgb(240, 242, 242);
   top: 30px;
   right: 0;

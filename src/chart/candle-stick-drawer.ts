@@ -42,6 +42,7 @@ export class CandleStickDrawer extends Drawer {
   protected data: CandleStickData[] = []
   constructor(chart: Chart, data: CandleStickData[] = []) {
     super(chart, data)
+    this.xTickFormatter = this.xTickFormatter.bind(this)
     this.context = chart.context
     this.titleDrawer = new ChartTitle(
       this.context,
@@ -97,6 +98,9 @@ export class CandleStickDrawer extends Drawer {
       left: this.yScale.invert(y).toFixed(2)
     }
   }
+  public getXAxisDetail(i: number): string {
+    return this.xTickFormatter(i)
+  }
   get MAIndicators() {
     return Object.getPrototypeOf(this).constructor.MAIndicators as MAIndicator[]
   }
@@ -135,14 +139,15 @@ export class CandleStickDrawer extends Drawer {
       this.chart.options.resolution,
       true,
       THEME.gridLine,
-      (t: number) => {
-        const d = this.data[t]
-        if (d) {
-          return formateDate(d.time, 'yyyy/MM/dd')
-        }
-        return ''
-      }
+      this.xTickFormatter
     )
+  }
+  protected xTickFormatter(value: number) {
+    const d = this.data[value]
+    if (d) {
+      return formateDate(d.time, 'yyyy/MM/dd')
+    }
+    return ''
   }
   protected drawAxes() {
     this.drawXAxis()

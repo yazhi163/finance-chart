@@ -4,7 +4,7 @@ import { ScaleLinear } from '../../node_modules/@types/d3-scale/index'
 import { scaleLinear } from 'd3-scale'
 import { Rect, Point } from '../graphic/primitive';
 import './chart.scss';
-import { TITLE_HEIGHT, PADDING_LEFT, PADDING_RIGHT, TITLE_MARGIN_BOTTOM, X_AXIS_HEIGHT } from '../constants/constants';
+import { TITLE_HEIGHT, PADDING_LEFT, PADDING_RIGHT, TITLE_MARGIN_BOTTOM, X_AXIS_HEIGHT, TICK_MARGIN, DETAIL_PANEL_WIDTH, FRONT_SIGHT_LABEL_HEIGHT, X_FRONT_SIGHT_LABEL_PADDING } from '../constants/constants';
 
 export interface DrawerContructor {
   new (chart: Chart, data: any[]): Drawer
@@ -56,6 +56,9 @@ export class Drawer {
       left: null,
       right: null
     }
+  }
+  getXAxisDetail(i: number): string {
+    return null
   }
   protected get titleHeight() {
     return TITLE_HEIGHT * this.chart.options.resolution
@@ -368,35 +371,55 @@ export class Chart {
     if (typeof ctx.setLineDash === 'function') {
       ctx.setLineDash([])
     }
-    ctx.textAlign = 'center'
-    ctx.textBaseline = 'middle'
     ctx.font = `${10 * resolution}px sans-serif`
+    let xAxisDetail = this.mainDrawer.getXAxisDetail(i)
+    if (xAxisDetail) {
+      const textWidth = ctx.measureText(xAxisDetail).width
+      const labelWidth = textWidth + 2 * X_FRONT_SIGHT_LABEL_PADDING * resolution
+      const rect = {
+        x: clamp(x - labelWidth / 2, 0, this.width - labelWidth),
+        y: this.mainChartHeight - X_AXIS_HEIGHT * resolution,
+        width: labelWidth,
+        height: X_AXIS_HEIGHT * resolution
+      }
+      ctx.fillStyle = Chart.Theme.frontSightLabelBackground
+      ctx.fillRect(rect.x, rect.y, rect.width, rect.height)
+      ctx.strokeRect(rect.x, rect.y, rect.width, rect.height)
+      ctx.textBaseline = 'top'
+      ctx.textAlign = 'center'
+      ctx.fillStyle = Chart.Theme.frontSight
+      ctx.fillText(xAxisDetail, rect.x + rect.width / 2, rect.y +  TICK_MARGIN * resolution)
+    }
+    ctx.textBaseline = 'middle'
     if (yAxisDetail.left) {
+      ctx.textAlign = 'right'
+      const w = PADDING_LEFT * resolution
       const rect: Rect = {
         x: 0,
         y,
-        width: PADDING_LEFT * resolution,
-        height: 20 * resolution
+        width: w,
+        height: FRONT_SIGHT_LABEL_HEIGHT * resolution
       }
       ctx.fillStyle = Chart.Theme.frontSightLabelBackground
       ctx.fillRect(rect.x, rect.y - rect.height / 2, rect.width, rect.height)
       ctx.strokeRect(rect.x, rect.y - rect.height / 2, rect.width, rect.height)
       ctx.fillStyle = Chart.Theme.frontSight
-      ctx.fillText(yAxisDetail.left, rect.x + rect.width /2, y)
+      ctx.fillText(yAxisDetail.left, w - TICK_MARGIN * resolution, y)
     }
     if (yAxisDetail.right) {
+      ctx.textAlign = 'left'
       const w = PADDING_RIGHT * resolution
       const rect: Rect = {
         x: this.width - w,
         y,
         width: w,
-        height: 20 * resolution
+        height: FRONT_SIGHT_LABEL_HEIGHT * resolution
       }
       ctx.fillStyle = Chart.Theme.frontSightLabelBackground
       ctx.fillRect(rect.x, rect.y - rect.height / 2, rect.width, rect.height)
       ctx.strokeRect(rect.x, rect.y - rect.height / 2, rect.width, rect.height)
       ctx.fillStyle = Chart.Theme.frontSight
-      ctx.fillText(yAxisDetail.right, rect.x + rect.width / 2, y)
+      ctx.fillText(yAxisDetail.right, rect.x + TICK_MARGIN * resolution, y)
     }
     this.drawDetail()
   }
@@ -486,10 +509,13 @@ export class Chart {
     }
     this.interactive = InteractiveState.ShowDetail
     this.detailElement.style.display = 'block'
-    if (this.detailPoint.x > this.width / 2) {
+    const distanceToEnd = this.width / resolution - PADDING_RIGHT - x
+    if (distanceToEnd < DETAIL_PANEL_WIDTH + 10) {
+      // snap to left
       this.detailElement.style.right = 'auto'
       this.detailElement.style.left = `${PADDING_LEFT}px`
     } else {
+      // snap to right
       this.detailElement.style.left = 'auto'
       this.detailElement.style.right = `${PADDING_RIGHT}px`
     }
