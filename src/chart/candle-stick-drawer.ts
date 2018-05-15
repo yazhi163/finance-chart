@@ -12,13 +12,26 @@ import { trimNulls } from "../algorithm/arrays";
 import { TITLE_HEIGHT, X_AXIS_HEIGHT } from '../constants/constants';
 import { Point } from '../graphic/primitive';
 
-const THEME = {
+export const CandleStickWhiteTheme = {
   rise: '#F55559',
   fall: '#7DCE8D',
   same: '#7DCE8D',
   titleBackground: '#F2F4F4',
   title: '#5E667F',
-  gridLine: '#E7EAEB'
+  gridLine: '#E7EAEB',
+  yTick: '#5E667F',
+  xTick: '#5E667F'
+}
+
+export const CandleStickBlackTheme = {
+  rise: '#F55559',
+  fall: '#7DCE8D',
+  same: '#7DCE8D',
+  titleBackground: '#22252B',
+  title: '#AEB4BE',
+  gridLine: '#282D38',
+  yTick: '#AEB4BE',
+  xTick: '#AEB4BE'
 }
 
 export interface CandleStickData {
@@ -36,6 +49,7 @@ export interface MAIndicator {
 }
 
 export class CandleStickDrawer extends Drawer {
+  static theme = CandleStickWhiteTheme
   static MAIndicators: MAIndicator[] = []
 
   titleDrawer: ChartTitle
@@ -51,8 +65,8 @@ export class CandleStickDrawer extends Drawer {
         label: `${key.toUpperCase()}: 0`,
         color
       })),
-      THEME.titleBackground,
-      THEME.title,
+      CandleStickDrawer.theme.titleBackground,
+      CandleStickDrawer.theme.title,
       this.chart.options.resolution
     );
     this.setData(data)
@@ -120,12 +134,12 @@ export class CandleStickDrawer extends Drawer {
   protected drawYAxis() {
     drawYAxis(
       this.context,
-      divide(this.bottomValue(), this.topValue()).map(n => ({ value: n })),
+      divide(this.bottomValue(), this.topValue()).map(n => ({ value: n, color: CandleStickDrawer.theme.yTick})),
       this.frame,
       this.yScale,
       this.chart.options.resolution,
       true,
-      THEME.gridLine,
+      CandleStickDrawer.theme.gridLine,
     )
   }
   protected drawXAxis() {
@@ -138,8 +152,9 @@ export class CandleStickDrawer extends Drawer {
       this.chart.xScale,
       this.chart.options.resolution,
       true,
-      THEME.gridLine,
-      this.xTickFormatter
+      CandleStickDrawer.theme.gridLine,
+      this.xTickFormatter,
+      CandleStickDrawer.theme.xTick
     )
   }
   protected xTickFormatter(value: number) {
@@ -173,7 +188,7 @@ export class CandleStickDrawer extends Drawer {
     const { frame } = this
     const { xScale } = this.chart
     const { context: ctx, yScale } = this
-    
+    const { resolution } = this.chart.options
     this.data.forEach((d, i) => {
       const maxV = Math.max(d.close, d.open),
             minV = Math.min(d.close, d.open),
@@ -183,17 +198,17 @@ export class CandleStickDrawer extends Drawer {
       width -= width * 0.2
       const x = xScale(i) - width / 2
       if (d.close > d.open) {
-        ctx.fillStyle = ctx.strokeStyle = THEME.rise
-        ctx.strokeRect(x, y, width, height)
+        ctx.fillStyle = ctx.strokeStyle = CandleStickDrawer.theme.rise
+        ctx.fillRect(x, y, width, height)
       } else if (d.close < d.open) {
-        ctx.fillStyle= ctx.strokeStyle =  THEME.fall
+        ctx.fillStyle= ctx.strokeStyle =  CandleStickDrawer.theme.fall
         ctx.fillRect(x, y, width, height)
       } else {
-        ctx.fillStyle = ctx.strokeStyle =  THEME.same
-        ctx.fillRect(x, y, width, 1)
+        ctx.fillStyle = ctx.strokeStyle =  CandleStickDrawer.theme.same
+        ctx.fillRect(x, y, width, 1 * resolution)
       }
-      ctx.fillRect(x + width / 2, yScale(d.high), 1, yScale(maxV) - yScale(d.high))
-      ctx.fillRect(x + width / 2, yScale(minV), 1, yScale(d.low) - yScale(minV))
+      ctx.fillRect(x + width / 2, yScale(d.high), 1 * resolution, yScale(maxV) - yScale(d.high))
+      ctx.fillRect(x + width / 2, yScale(minV), 1 * resolution, yScale(d.low) - yScale(minV))
     })
   }
 }

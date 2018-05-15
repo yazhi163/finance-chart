@@ -9,13 +9,23 @@ import { drawYAxis, drawXAxis } from "../paint-utils/index";
 import { divide } from "../algorithm/divide";
 import { TITLE_HEIGHT, TITLE_MARGIN_BOTTOM } from '../constants/constants';
 
-const VOLUME_THEME = {
+export const VolumeWhiteTheme = {
   rise: '#F55559',
   fall: '#7DCE8D',
   volumeText: '#F78081',
   titleBackground: '#F2F4F4',
   title: '#5E667F',
-  gridLine: '#E7EAEB'
+  gridLine: '#E7EAEB',
+  yTick: '#5E667F'
+}
+export const VolumeBlackTheme = {
+  rise: '#F55559',
+  fall: '#7DCE8D',
+  volumeText: '#F78081',
+  titleBackground: '#22252B',
+  title: '#AEB4BE',
+  gridLine: '#282D38',
+  yTick: '#AEB4BE'
 }
 
 
@@ -41,6 +51,7 @@ const volumeLabel = (v: number) => {
  * Volume chart drawer
  */
 export class VolumeDrawer extends Drawer {
+  static theme = VolumeWhiteTheme
   static proportion = 100
   static unit = '手'
   titleDrawer: ChartTitle
@@ -54,11 +65,11 @@ export class VolumeDrawer extends Drawer {
         {
           x: 60,
           label: volumeLabel(0),
-          color: VOLUME_THEME.volumeText
+          color: VolumeDrawer.theme.volumeText
         }
       ],
-      VOLUME_THEME.titleBackground,
-      VOLUME_THEME.title,
+      VolumeDrawer.theme.titleBackground,
+      VolumeDrawer.theme.title,
       this.chart.options.resolution
     )
     this.setData(data)
@@ -102,7 +113,7 @@ export class VolumeDrawer extends Drawer {
       this.chart.xScale,
       this.chart.options.resolution,
       false,
-      VOLUME_THEME.gridLine,
+      VolumeDrawer.theme.gridLine
     )
   }
   protected drawAxes() {
@@ -110,7 +121,7 @@ export class VolumeDrawer extends Drawer {
     this.drawYAxis()
   }
   protected drawYAxis() {
-    const tickValues = uniq(divide(0, this.maxValue, 4)).map(n => ({ value: Math.round(n) }));
+    const tickValues = uniq(divide(0, this.maxValue, 4)).map(n => ({ value: Math.round(n), color: VolumeDrawer.theme.yTick }));
     const maxTickValue =
       max(tickValues, d => d.value) / VolumeDrawer.proportion
     const useWUnit = maxTickValue > 10000
@@ -121,7 +132,7 @@ export class VolumeDrawer extends Drawer {
       this.yScale,
       this.chart.options.resolution,
       true,
-      VOLUME_THEME.gridLine,
+      VolumeDrawer.theme.gridLine,
       (v, i) => {
         // const scaledV = v / VolumeDrawer.proportion
         if (i === 0) {
@@ -141,7 +152,7 @@ export class VolumeDrawer extends Drawer {
     const { context: ctx, yScale } = this
 
     this.data.forEach((d, i) => {
-      ctx.fillStyle = this.calcDeltaPrice(d, i, this.data) > 0 ? VOLUME_THEME.rise : VOLUME_THEME.fall;
+      ctx.fillStyle = this.calcDeltaPrice(d, i, this.data) > 0 ? VolumeDrawer.theme.rise : VolumeDrawer.theme.fall;
       const x = xScale(i),
             y = yScale(d.volume),
             height = chartFrame.height - (y - chartFrame.y)

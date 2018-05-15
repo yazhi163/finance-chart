@@ -11,7 +11,7 @@ import { divide } from "../algorithm/divide";
 import { formateDate } from "../algorithm/date";
 import { TITLE_HEIGHT, X_AXIS_HEIGHT } from '../constants/constants';
 
-const TIME_SHARE_THEME = {
+export const TimeShareWhiteTheme = {
   price: '#4B99FB',
   rise: '#F55559',
   fall: '#7DCE8D',
@@ -22,7 +22,22 @@ const TIME_SHARE_THEME = {
   ],
   avg: '#F89D37',
   titleBackground: '#F2F4F4',
-  gridLine: '#E7EAEB'
+  gridLine: '#E7EAEB',
+  xTick: '#5E667F'
+}
+export const TimeShareBlackTheme = {
+  price: '#4B99FB',
+  rise: '#F55559',
+  fall: '#7DCE8D',
+  same: '#7DCE8D',
+  linearGradient: [
+    'rgba(75, 153, 251, 0.4)',
+    'rgba(75, 153, 251, 0)'
+  ],
+  avg: '#F89D37',
+  titleBackground: '#22252B',
+  gridLine: '#282D38',
+  xTick: '#AEB4BE'
 }
 
 export interface TimeShareData {
@@ -32,6 +47,7 @@ export interface TimeShareData {
 }
 
 export class TimeShareDrawer extends Drawer {
+  static theme = TimeShareWhiteTheme
   titleDrawer: ChartTitle
   protected data: TimeShareData[]
   constructor(chart: Chart, data: TimeShareData[] = []) {
@@ -44,15 +60,15 @@ export class TimeShareDrawer extends Drawer {
         {
           x: 5 * this.chart.options.resolution,
           label: '分时走势',
-          color: TIME_SHARE_THEME.price
+          color: TimeShareDrawer.theme.price
         },
         {
           x: 50 + 5 * this.chart.options.resolution,
           label: '均线',
-          color: TIME_SHARE_THEME.avg
+          color: TimeShareDrawer.theme.avg
         }
       ],
-      TIME_SHARE_THEME.titleBackground,
+      TimeShareDrawer.theme.titleBackground,
       'white',
       this.chart.options.resolution
     );
@@ -85,11 +101,11 @@ export class TimeShareDrawer extends Drawer {
     const size = 5 * this.chart.options.resolution
     ctx.beginPath()
     ctx.arc(x, yScale(data[selectedIndex].price), size, 0, Math.PI * 2)
-    ctx.fillStyle = TIME_SHARE_THEME.price
+    ctx.fillStyle = TimeShareDrawer.theme.price
     ctx.fill()
     ctx.beginPath()
     ctx.arc(x, yScale(data[selectedIndex].avg), size, 0, Math.PI * 2)
-    ctx.fillStyle = TIME_SHARE_THEME.avg
+    ctx.fillStyle = TimeShareDrawer.theme.avg
     ctx.fill()
   }
   public resize(frame: Rect) {
@@ -120,7 +136,7 @@ export class TimeShareDrawer extends Drawer {
     const lastPrice = this.chart.lastPrice
     const tickValues = divide(this.bottomValue(), this.topValue()).map(n => ({
         value: n,
-        color: n > lastPrice ? TIME_SHARE_THEME.rise : TIME_SHARE_THEME.fall
+        color: n > lastPrice ? TimeShareDrawer.theme.rise : TimeShareDrawer.theme.fall
     }));
     drawYAxis(
       this.context,
@@ -129,7 +145,7 @@ export class TimeShareDrawer extends Drawer {
       this.yScale,
       this.chart.options.resolution,
       true,
-      TIME_SHARE_THEME.gridLine,
+      TimeShareDrawer.theme.gridLine,
     )
     drawYAxis(
       this.context,
@@ -138,7 +154,7 @@ export class TimeShareDrawer extends Drawer {
       this.yScale,
       this.chart.options.resolution,
       false,
-      TIME_SHARE_THEME.gridLine,
+      TimeShareDrawer.theme.gridLine,
       (v) => this.deltaInPercentage(v),
       'right'
     )
@@ -157,8 +173,9 @@ export class TimeShareDrawer extends Drawer {
       this.chart.xScale,
       this.chart.options.resolution,
       true,
-      TIME_SHARE_THEME.gridLine,
-      this.xTickFormatter
+      TimeShareDrawer.theme.gridLine,
+      this.xTickFormatter,
+      TimeShareDrawer.theme.xTick
     )
   }
   protected drawAxes() {
@@ -178,12 +195,12 @@ export class TimeShareDrawer extends Drawer {
     ctx.beginPath()
     drawArea(this.data)
     const linearGradient = ctx.createLinearGradient(0, 0, 0, frame.height)
-    TIME_SHARE_THEME.linearGradient.forEach((color, i) =>
+    TimeShareDrawer.theme.linearGradient.forEach((color, i) =>
       linearGradient.addColorStop(i, color))
     ctx.fillStyle = linearGradient
     ctx.fill()
-    this.drawLine('price', TIME_SHARE_THEME.price)
-    this.drawLine('avg', TIME_SHARE_THEME.avg)
+    this.drawLine('price', TimeShareDrawer.theme.price)
+    this.drawLine('avg', TimeShareDrawer.theme.avg)
   }
   @autoResetStyle()
   protected drawLine(key: keyof TimeShareData, color = 'black') {

@@ -179,11 +179,22 @@ enum InteractiveState {
   Dragging,
   None
 }
+export const ChartWhiteTheme = {
+  frontSight: '#4B99FB',
+  frontSightLabelBackground: '#E2F1FE',
+  background: '#ffffff',
+  detailColor: '#5E667F',
+  detailBackground: '#F0F2F2'
+}
+export const ChartBlackTheme = {
+  frontSight: '#4B99FB',
+  frontSightLabelBackground: '#1D1F23',
+  background: '#1D1F23',
+  detailColor: '#7B7E8D',
+  detailBackground: '#282E36'
+}
 export class Chart {
-  static Theme = {
-    frontSight: '#4B99FB',
-    frontSightLabelBackground: '#E2F1FE',
-  }
+  static theme = ChartWhiteTheme
   options: ChartOptions
   requestAnimationFrameId: number = null
   rootElement: HTMLElement
@@ -323,6 +334,8 @@ export class Chart {
         // if (process.env.NODE_ENV === 'development') {
         //   console.time('rendering cost');
         // }
+        this.context.fillStyle = Chart.theme.background
+        this.context.fillRect(0, 0, this.width, this.height);
         this.mainDrawer && this.mainDrawer.draw()
         this.auxiliaryDrawer[this.selectedAuxiliaryDrawer] &&
           this.auxiliaryDrawer[this.selectedAuxiliaryDrawer].draw()
@@ -352,7 +365,7 @@ export class Chart {
     ctx.moveTo(PADDING_LEFT * resolution, y)
     ctx.lineTo(this.width - PADDING_RIGHT * resolution, y)
     ctx.lineWidth = 1
-    ctx.strokeStyle = Chart.Theme.frontSight
+    ctx.strokeStyle = Chart.theme.frontSight
     // not support in ie 10
     if (typeof ctx.setLineDash === 'function') {
       ctx.setLineDash([2, 5, 15, 5])
@@ -366,7 +379,7 @@ export class Chart {
       yAxisDetail = drawer.getYAxisDetail(y)
     }
     this.forEachVisibleDrawer(drawer => drawer.drawFrontSight())
-    ctx.strokeStyle = Chart.Theme.frontSight
+    ctx.strokeStyle = Chart.theme.frontSight
     // not support in ie 10
     if (typeof ctx.setLineDash === 'function') {
       ctx.setLineDash([])
@@ -382,12 +395,12 @@ export class Chart {
         width: labelWidth,
         height: X_AXIS_HEIGHT * resolution
       }
-      ctx.fillStyle = Chart.Theme.frontSightLabelBackground
+      ctx.fillStyle = Chart.theme.frontSightLabelBackground
       ctx.fillRect(rect.x, rect.y, rect.width, rect.height)
       ctx.strokeRect(rect.x, rect.y, rect.width, rect.height)
       ctx.textBaseline = 'top'
       ctx.textAlign = 'center'
-      ctx.fillStyle = Chart.Theme.frontSight
+      ctx.fillStyle = Chart.theme.frontSight
       ctx.fillText(xAxisDetail, rect.x + rect.width / 2, rect.y +  TICK_MARGIN * resolution)
     }
     ctx.textBaseline = 'middle'
@@ -400,10 +413,10 @@ export class Chart {
         width: textWidth + TICK_MARGIN * 2 * resolution,
         height: FRONT_SIGHT_LABEL_HEIGHT * resolution
       }
-      ctx.fillStyle = Chart.Theme.frontSightLabelBackground
+      ctx.fillStyle = Chart.theme.frontSightLabelBackground
       ctx.fillRect(rect.x, rect.y - rect.height / 2, rect.width, rect.height)
       ctx.strokeRect(rect.x, rect.y - rect.height / 2, rect.width, rect.height)
-      ctx.fillStyle = Chart.Theme.frontSight
+      ctx.fillStyle = Chart.theme.frontSight
       ctx.fillText(yAxisDetail.left, rect.x + TICK_MARGIN * resolution, y)
     }
     if (yAxisDetail.right) {
@@ -416,10 +429,10 @@ export class Chart {
         width: w,
         height: FRONT_SIGHT_LABEL_HEIGHT * resolution
       }
-      ctx.fillStyle = Chart.Theme.frontSightLabelBackground
+      ctx.fillStyle = Chart.theme.frontSightLabelBackground
       ctx.fillRect(rect.x, rect.y - rect.height / 2, rect.width, rect.height)
       ctx.strokeRect(rect.x, rect.y - rect.height / 2, rect.width, rect.height)
-      ctx.fillStyle = Chart.Theme.frontSight
+      ctx.fillStyle = Chart.theme.frontSight
       ctx.fillText(yAxisDetail.right, rect.x + + rect.width -  TICK_MARGIN * resolution, y)
     }
     this.drawDetail()
@@ -427,6 +440,8 @@ export class Chart {
   private watchDetail() {
     const { canvas } = this;
     this.detailElement = document.createElement('div')
+    this.detailElement.style.backgroundColor = Chart.theme.detailBackground
+    this.detailElement.style.color = Chart.theme.detailColor
     this.detailElement.className = 'chart-detail'
     this.rootElement.appendChild(this.detailElement)
     canvas.addEventListener('contextmenu', e => e.preventDefault())

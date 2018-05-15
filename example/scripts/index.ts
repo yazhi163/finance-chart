@@ -1,11 +1,18 @@
 import './index.scss'
-import { TimeShareDrawer } from '../../src/chart/time-share-drawer'
-import { CandleStickDrawer, CandleStickData } from '../../src/chart/candle-stick-drawer';
-import { Chart } from '../../src/chart/chart'
-import { VolumeDrawer, VolumeData } from '../../src/chart/volume-drawer'
+import { TimeShareDrawer, TimeShareBlackTheme } from '../../src/chart/time-share-drawer'
+import { CandleStickDrawer, CandleStickData, CandleStickBlackTheme } from '../../src/chart/candle-stick-drawer';
+import { Chart, ChartBlackTheme } from '../../src/chart/chart'
+import { VolumeDrawer, VolumeData, VolumeBlackTheme } from '../../src/chart/volume-drawer'
 import { formateDate } from '../../src/algorithm/date';
 import MOCK_TIME_SHARE from './mock-time-share';
 import MOCK_KLINE from './mock-kline';
+
+// configure your theme
+Chart.theme = ChartBlackTheme
+TimeShareDrawer.theme = TimeShareBlackTheme
+CandleStickDrawer.theme = CandleStickBlackTheme
+VolumeDrawer.theme = VolumeBlackTheme
+
 
 VolumeDrawer.proportion = 100
 VolumeDrawer.unit = '手'
@@ -39,7 +46,7 @@ function createTimeShare() {
             value: '10353'
           },
           {
-            color: '#333',
+            color: '#7B7E8D',
             name: '开盘',
             value: '10353'
           }
@@ -115,7 +122,7 @@ function createKLine() {
             value: '10353'
           },
           {
-            color: '#333',
+            color: '#7B7E8D',
             name: '开盘',
             value: '10353'
           }
