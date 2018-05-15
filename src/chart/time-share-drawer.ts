@@ -117,7 +117,7 @@ export class TimeShareDrawer extends Drawer {
     }
   }
   protected drawYAxis() {
-    const lastPrice = this.chart.options.lastPrice
+    const lastPrice = this.chart.lastPrice
     const tickValues = divide(this.bottomValue(), this.topValue()).map(n => ({
         value: n,
         color: n > lastPrice ? TIME_SHARE_THEME.rise : TIME_SHARE_THEME.fall
@@ -144,7 +144,7 @@ export class TimeShareDrawer extends Drawer {
     )
   }
   protected deltaInPercentage(value: number): string {
-    const lastPrice = this.chart.options.lastPrice
+    const lastPrice = this.chart.lastPrice
     return `${((value - lastPrice) / lastPrice * 100).toFixed(2)}%`
   }
   protected drawXAxis() {
