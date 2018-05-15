@@ -179,7 +179,8 @@ export class CandleStickDrawer extends Drawer {
           x: xScale(i + trimed.deleted),
           y: yScale(d)
         })),
-        color
+        color,
+        1 * this.chart.options.resolution
       )
     })
   }
@@ -207,8 +208,9 @@ export class CandleStickDrawer extends Drawer {
         ctx.fillStyle = ctx.strokeStyle =  CandleStickDrawer.theme.same
         ctx.fillRect(x, y, width, 1 * resolution)
       }
-      ctx.fillRect(x + width / 2, yScale(d.high), 1 * resolution, yScale(maxV) - yScale(d.high))
-      ctx.fillRect(x + width / 2, yScale(minV), 1 * resolution, yScale(d.low) - yScale(minV))
+      const lineWidth = 1 * resolution
+      ctx.fillRect(x + width / 2 - lineWidth / 2, yScale(d.high), lineWidth, yScale(maxV) - yScale(d.high))
+      ctx.fillRect(x + width / 2 - lineWidth / 2, yScale(minV), lineWidth, yScale(d.low) - yScale(minV))
     })
   }
 }

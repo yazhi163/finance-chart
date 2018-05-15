@@ -212,7 +212,8 @@ export class TimeShareDrawer extends Drawer {
         x: xScale(i),
         y: yScale(item[key]),
       })),
-      color
+      color,
+      1 * this.chart.options.resolution
     )
   }
 }

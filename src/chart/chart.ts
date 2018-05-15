@@ -364,7 +364,7 @@ export class Chart {
     ctx.lineTo(x, this.height - X_AXIS_HEIGHT * resolution)
     ctx.moveTo(PADDING_LEFT * resolution, y)
     ctx.lineTo(this.width - PADDING_RIGHT * resolution, y)
-    ctx.lineWidth = 1
+    ctx.lineWidth = 1 * this.options.resolution
     ctx.strokeStyle = Chart.theme.frontSight
     // not support in ie 10
     if (typeof ctx.setLineDash === 'function') {
