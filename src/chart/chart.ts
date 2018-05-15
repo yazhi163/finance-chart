@@ -408,12 +408,13 @@ export class Chart {
       ctx.fillText(xAxisDetail, rect.x + rect.width / 2, rect.y +  TICK_MARGIN * resolution)
     }
     ctx.textBaseline = 'middle'
+    const clampY = clamp(y, 0, this.height - FRONT_SIGHT_LABEL_HEIGHT * resolution / 2)
     if (yAxisDetail.left) {
       const textWidth = ctx.measureText(yAxisDetail.left).width
       ctx.textAlign = 'left'
       const rect: Rect = {
         x: PADDING_LEFT * resolution,
-        y,
+        y: clampY,
         width: textWidth + TICK_MARGIN * 2 * resolution,
         height: FRONT_SIGHT_LABEL_HEIGHT * resolution
       }
@@ -421,7 +422,7 @@ export class Chart {
       ctx.fillRect(rect.x, rect.y - rect.height / 2, rect.width, rect.height)
       ctx.strokeRect(rect.x, rect.y - rect.height / 2, rect.width, rect.height)
       ctx.fillStyle = Chart.theme.frontSight
-      ctx.fillText(yAxisDetail.left, rect.x + TICK_MARGIN * resolution, y)
+      ctx.fillText(yAxisDetail.left, rect.x + TICK_MARGIN * resolution, rect.y)
     }
     if (yAxisDetail.right) {
       const textWidth = ctx.measureText(yAxisDetail.right).width
@@ -429,7 +430,7 @@ export class Chart {
       const w = textWidth + TICK_MARGIN * 2 * resolution
       const rect: Rect = {
         x: this.width - w - PADDING_RIGHT * resolution,
-        y,
+        y: clampY,
         width: w,
         height: FRONT_SIGHT_LABEL_HEIGHT * resolution
       }
@@ -437,7 +438,7 @@ export class Chart {
       ctx.fillRect(rect.x, rect.y - rect.height / 2, rect.width, rect.height)
       ctx.strokeRect(rect.x, rect.y - rect.height / 2, rect.width, rect.height)
       ctx.fillStyle = Chart.theme.frontSight
-      ctx.fillText(yAxisDetail.right, rect.x + + rect.width -  TICK_MARGIN * resolution, y)
+      ctx.fillText(yAxisDetail.right, rect.x + rect.width -  TICK_MARGIN * resolution, rect.y)
     }
     this.drawDetail()
   }

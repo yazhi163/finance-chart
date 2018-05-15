@@ -94,7 +94,8 @@ export class VolumeDrawer extends Drawer {
   }
   public getYAxisDetail(y: number): YAxisDetail {
     return {
-      left: shortenVolume(this.yScale.invert(y))
+      left: shortenVolume(this.yScale.invert(y)),
+      right: 'xx'
     }
   }
   private drawTitle(i: number) {
