@@ -523,7 +523,7 @@ export class Chart {
     }
     if (!data || data.length === 0) return
     if (y < TITLE_HEIGHT ||
-        y > this.height / resolution - X_AXIS_HEIGHT) {
+        y > this.height / resolution) {
       this.hideDetail()
       return
     }
