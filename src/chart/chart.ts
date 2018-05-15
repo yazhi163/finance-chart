@@ -349,8 +349,8 @@ export class Chart {
     ctx.beginPath()
     ctx.moveTo(x, TITLE_HEIGHT * resolution)
     ctx.lineTo(x, this.height - X_AXIS_HEIGHT * resolution)
-    ctx.moveTo(0, y)
-    ctx.lineTo(this.width, y)
+    ctx.moveTo(PADDING_LEFT * resolution, y)
+    ctx.lineTo(this.width - PADDING_RIGHT * resolution, y)
     ctx.lineWidth = 1
     ctx.strokeStyle = Chart.Theme.frontSight
     // not support in ie 10
@@ -392,25 +392,26 @@ export class Chart {
     }
     ctx.textBaseline = 'middle'
     if (yAxisDetail.left) {
-      ctx.textAlign = 'right'
-      const w = PADDING_LEFT * resolution
+      const textWidth = ctx.measureText(yAxisDetail.left).width
+      ctx.textAlign = 'left'
       const rect: Rect = {
-        x: 0,
+        x: PADDING_LEFT * resolution,
         y,
-        width: w,
+        width: textWidth + TICK_MARGIN * 2 * resolution,
         height: FRONT_SIGHT_LABEL_HEIGHT * resolution
       }
       ctx.fillStyle = Chart.Theme.frontSightLabelBackground
       ctx.fillRect(rect.x, rect.y - rect.height / 2, rect.width, rect.height)
       ctx.strokeRect(rect.x, rect.y - rect.height / 2, rect.width, rect.height)
       ctx.fillStyle = Chart.Theme.frontSight
-      ctx.fillText(yAxisDetail.left, w - TICK_MARGIN * resolution, y)
+      ctx.fillText(yAxisDetail.left, rect.x + TICK_MARGIN * resolution, y)
     }
     if (yAxisDetail.right) {
-      ctx.textAlign = 'left'
-      const w = PADDING_RIGHT * resolution
+      const textWidth = ctx.measureText(yAxisDetail.right).width
+      ctx.textAlign = 'right'
+      const w = textWidth + TICK_MARGIN * 2 * resolution
       const rect: Rect = {
-        x: this.width - w,
+        x: this.width - w - PADDING_RIGHT * resolution,
         y,
         width: w,
         height: FRONT_SIGHT_LABEL_HEIGHT * resolution
@@ -419,7 +420,7 @@ export class Chart {
       ctx.fillRect(rect.x, rect.y - rect.height / 2, rect.width, rect.height)
       ctx.strokeRect(rect.x, rect.y - rect.height / 2, rect.width, rect.height)
       ctx.fillStyle = Chart.Theme.frontSight
-      ctx.fillText(yAxisDetail.right, rect.x + TICK_MARGIN * resolution, y)
+      ctx.fillText(yAxisDetail.right, rect.x + + rect.width -  TICK_MARGIN * resolution, y)
     }
     this.drawDetail()
   }

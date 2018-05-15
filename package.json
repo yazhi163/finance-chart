@@ -1,6 +1,6 @@
 {
   "name": "@dz-web/finance-chart",
-  "version": "0.4.3",
+  "version": "0.5.3",
   "description": "finance chart for dz-web",
   "main": "index.js",
   "types": "./dist/index.d.ts",

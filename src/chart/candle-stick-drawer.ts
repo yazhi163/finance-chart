@@ -145,7 +145,7 @@ export class CandleStickDrawer extends Drawer {
   protected xTickFormatter(value: number) {
     const d = this.data[value]
     if (d) {
-      return formateDate(d.time, 'yyyy/MM/dd')
+      return formateDate(d.time, 'MM/dd')
     }
     return ''
   }

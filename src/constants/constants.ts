@@ -1,8 +1,8 @@
 export const TITLE_HEIGHT = 25
 export const X_AXIS_HEIGHT = 20
-export const PADDING_LEFT = 45
-export const PADDING_RIGHT = 45
-export const DETAIL_PANEL_WIDTH = 110
+export const PADDING_LEFT = 10
+export const PADDING_RIGHT = 10
+export const DETAIL_PANEL_WIDTH = 120
 export const TITLE_MARGIN_BOTTOM = 15
 export const TICK_MARGIN = 3
 export const FRONT_SIGHT_LABEL_HEIGHT = 20

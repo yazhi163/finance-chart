@@ -56,11 +56,11 @@ export function drawYAxis(
     ctx.textBaseline = 'bottom'
     let x: number
     if (align === 'left') {
-      ctx.textAlign = 'right'
-      x = (PADDING_LEFT - TICK_MARGIN) * resolution
-    } else {
       ctx.textAlign = 'left'
-      x = frame.width - (PADDING_RIGHT - TICK_MARGIN) * resolution
+      x = (PADDING_LEFT + TICK_MARGIN) * resolution
+    } else {
+      ctx.textAlign = 'right'
+      x = frame.width - (PADDING_RIGHT + TICK_MARGIN) * resolution
     }
     tickValues.forEach(({value, color = '#5E667F' }, i) => {
       const y = scale(value)
@@ -91,11 +91,17 @@ export function drawXAxis(
     ctx.beginPath()
     ctx.lineWidth = 0.8
     ctx.font = `${10 * resolution}px sans-serif`
-    ctx.textAlign = 'center'
     ctx.fillStyle = tickColor
     ctx.textBaseline = 'top'
     const bottomY = frame.y + frame.height
     tickValues.forEach((value, i) => {
+      if (i === 0) {
+        ctx.textAlign = 'left'
+      } else if(i === tickValues.length - 1) {
+        ctx.textAlign = 'right'
+      } else {
+        ctx.textAlign = 'center'
+      }
       const x = scale(value)
       ctx.moveTo(x, frame.y)
       ctx.lineTo(x, bottomY)
