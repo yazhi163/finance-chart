@@ -20,7 +20,7 @@ VolumeDrawer.unit = '手'
 function createTimeShare() {
   const timeShareChart = new Chart({
     selector: '#time-share',
-    resolution: (window.devicePixelRatio || 1) >= 2 ? 2 : 1,
+    resolution: (window.devicePixelRatio || 1),
     count: 240,
     lastPrice: 15.2,
     data: MOCK_TIME_SHARE,
@@ -89,7 +89,7 @@ function createKLine() {
   ]
   const klineChart = new Chart({
     selector: '#candle-stick',
-    resolution: (window.devicePixelRatio || 1) >= 2 ? 2 : 1,
+    resolution: (window.devicePixelRatio || 1),
     count: 50,
     lastPrice: 50.49999809265137,
     data: MOCK_KLINE,
