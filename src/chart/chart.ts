@@ -24,6 +24,7 @@ export class Drawer {
   protected minValue = 0
   protected maxValue = 0
   protected yScale: ScaleLinear<number, number>
+  private _xAxisTickHeight = X_AXIS_HEIGHT
   constructor(public chart: Chart, data: Object[]) {
     this.context = chart.context
     this.selectedIndex = data.length - 1
@@ -63,8 +64,11 @@ export class Drawer {
   protected get titleHeight() {
     return TITLE_HEIGHT * this.chart.options.resolution
   }
+  protected set xAxisTickHeight(value) {
+    this._xAxisTickHeight = value
+  }
   protected get xAxisTickHeight() {
-    return X_AXIS_HEIGHT * this.chart.options.resolution
+    return this._xAxisTickHeight * this.chart.options.resolution
   }
   protected topValue = ((lastMaxValue = 0, lastTopValue = Number.MIN_VALUE) => 
     () => {
@@ -361,7 +365,7 @@ export class Chart {
     x = xScale(i)
     ctx.beginPath()
     ctx.moveTo(x, TITLE_HEIGHT * resolution)
-    ctx.lineTo(x, this.height - X_AXIS_HEIGHT * resolution)
+    ctx.lineTo(x, this.height)
     ctx.moveTo(PADDING_LEFT * resolution, y)
     ctx.lineTo(this.width - PADDING_RIGHT * resolution, y)
     ctx.lineWidth = 1 * this.options.resolution

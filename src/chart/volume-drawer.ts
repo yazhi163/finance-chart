@@ -58,6 +58,7 @@ export class VolumeDrawer extends Drawer {
   data: VolumeData[]
   constructor(chart: Chart, data: VolumeData[]) {
     super(chart, data)
+    this.xAxisTickHeight = 0
     this.context = chart.context
     this.titleDrawer = new ChartTitle(
       this.context,
