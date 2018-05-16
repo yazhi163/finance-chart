@@ -1,10 +1,19 @@
 import detectIt from 'detect-it';
 import clamp from 'lodash.clamp';
-import { ScaleLinear } from '../../node_modules/@types/d3-scale/index'
-import { scaleLinear } from 'd3-scale'
+import { ScaleLinear, scaleLinear } from 'd3-scale'
 import { Rect, Point } from '../graphic/primitive';
 import './chart.scss';
-import { TITLE_HEIGHT, PADDING_LEFT, PADDING_RIGHT, TITLE_MARGIN_BOTTOM, X_AXIS_HEIGHT, TICK_MARGIN, DETAIL_PANEL_WIDTH, FRONT_SIGHT_LABEL_HEIGHT, X_FRONT_SIGHT_LABEL_PADDING } from '../constants/constants';
+import {
+  TITLE_HEIGHT,
+  PADDING_LEFT,
+  PADDING_RIGHT,
+  X_AXIS_HEIGHT,
+  TICK_MARGIN, DETAIL_PANEL_WIDTH,
+  FRONT_SIGHT_LABEL_HEIGHT,
+  X_FRONT_SIGHT_LABEL_PADDING
+} from '../constants/constants';
+import { Drawer } from './drawer';
+import { TradeTimeSegment } from '../algorithm/tradetime';
 
 export interface DrawerContructor {
   new (chart: Chart, data: any[]): Drawer
@@ -15,88 +24,6 @@ export interface YAxisDetail {
   right?: string;
 }
 
-export class Drawer {
-  context: CanvasRenderingContext2D
-  frame: Rect = { x: 0, y: 0, width: 0, height: 0}
-  chartFrame: Rect = { x: 0, y: 0, width: 0, height: 0}
-  protected data: Object[]
-  protected selectedIndex: number
-  protected minValue = 0
-  protected maxValue = 0
-  protected yScale: ScaleLinear<number, number>
-  private _xAxisTickHeight = X_AXIS_HEIGHT
-  constructor(public chart: Chart, data: Object[]) {
-    this.context = chart.context
-    this.selectedIndex = data.length - 1
-  }
-  draw() {
-
-  }
-  drawFrontSight() {
-
-  }
-  resize(frame: Rect) {
-    const { resolution } = this.chart.options
-    this.frame = frame
-    this.chartFrame = {
-      ...frame,
-      y: frame.y + this.titleHeight,
-      height: frame.height -
-        this.titleHeight -
-        this.xAxisTickHeight
-    }
-  }
-  setData(data: Object[]) {
-    this.data = data;
-  }
-  select(i: number) {
-    this.selectedIndex = i
-  }
-  getYAxisDetail(y: number): YAxisDetail {
-    return {
-      left: null,
-      right: null
-    }
-  }
-  getXAxisDetail(i: number): string {
-    return null
-  }
-  protected get titleHeight() {
-    return TITLE_HEIGHT * this.chart.options.resolution
-  }
-  protected set xAxisTickHeight(value) {
-    this._xAxisTickHeight = value
-  }
-  protected get xAxisTickHeight() {
-    return this._xAxisTickHeight * this.chart.options.resolution
-  }
-  protected topValue = ((lastMaxValue = 0, lastTopValue = Number.MIN_VALUE) => 
-    () => {
-      const top = this.maxValue * (1.01)
-      if (top > lastTopValue) {
-        lastTopValue = top
-      }
-      return lastTopValue
-    }
-  )()
-  protected bottomValue = ((lastMinValue = 0, lastBottomValue = Number.MAX_VALUE) => 
-    () => {
-      const bottom = this.minValue * (0.99)
-      if (bottom < lastBottomValue) {
-        lastBottomValue = bottom
-      }
-      return lastBottomValue
-    }
-  )()
-  protected resetYScale() {
-    const { chartFrame } = this;
-    const resolution = this.chart.options.resolution
-    this.yScale = scaleLinear()
-      .domain([this.bottomValue(), this.topValue()])
-      .range([chartFrame.y + chartFrame.height, chartFrame.y + TITLE_MARGIN_BOTTOM * resolution])
-  }
-}
-
 export interface ChartOptions {
   /**
    * Selector use in document.querySelector or an document element
@@ -104,6 +31,7 @@ export interface ChartOptions {
   selector: string | HTMLElement;
   lastPrice: number;
   data: any[];
+  tradeTimes: TradeTimeSegment[]
   mainDrawer?: DrawerContructor;
   resolution?: number;
   count?: number;
@@ -150,6 +78,7 @@ function createOptions(
     selector,
     lastPrice,
     data = [],
+    tradeTimes,
     resolution = 1,
     count = 240,
     mainDrawer,
@@ -169,6 +98,7 @@ function createOptions(
     selector,
     lastPrice,
     data,
+    tradeTimes,
     resolution,
     count,
     mainDrawer,
@@ -292,7 +222,6 @@ export class Chart {
     this.canvas.style.height = '100%'
     this.canvas.width = this.width
     this.canvas.height = this.height
-    this.resetXScale()
     this.mainDrawer && this.mainDrawer.resize({
       x: 0,
       y: this.mainChartY,
@@ -307,6 +236,7 @@ export class Chart {
         height: this.auxiliaryChartHeight
       })
     })
+    this.resetXScale()
   }
   @shouldRedraw()
   public setData(data: any[], clean = false) {
@@ -325,10 +255,13 @@ export class Chart {
   public setLastPrice(value: number) {
     this.lastPrice = value
   }
+  public count() {
+    return this.mainDrawer.count()
+  }
   resetXScale() {
-    const { resolution, count } = this.options;
+    const { resolution } = this.options;
     this.xScale = scaleLinear()
-      .domain([0, count - 1])
+      .domain([0, this.count() - 1])
       .range([PADDING_LEFT * resolution, this.width - PADDING_RIGHT * resolution])
   }
   public drawAtEndOfFrame() {

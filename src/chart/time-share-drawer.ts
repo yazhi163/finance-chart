@@ -1,6 +1,5 @@
 import uniq from 'lodash.uniq'
-import { Chart, autoResetStyle, Drawer, YAxisDetail } from "./chart"
-import { ScaleLinear } from "../../node_modules/@types/d3-scale/index"
+import { Chart, autoResetStyle, YAxisDetail } from "./chart"
 import { area } from 'd3-shape'
 import { min, max } from 'd3-array';
 import { scaleLinear } from 'd3-scale'
@@ -10,6 +9,7 @@ import { ChartTitle } from "./chart-title";
 import { divide } from "../algorithm/divide";
 import { formateDate } from "../algorithm/date";
 import { TITLE_HEIGHT, X_AXIS_HEIGHT } from '../constants/constants';
+import { Drawer } from './drawer';
 
 export const TimeShareWhiteTheme = {
   price: '#4B99FB',
@@ -74,23 +74,29 @@ export class TimeShareDrawer extends Drawer {
     );
     this.setData(data)
   }
+  public count() {
+    return this.tradeTime.totalMinutes()
+  }
   public setData(data: TimeShareData[]) {
     this.data = data;
-    const merge = [...data.map(d => d.price), ...data.map(d => d.avg)]
-    this.minValue = min(merge)
-    this.maxValue = max(merge)
+    if (this.data.length > 0) {
+      const merge = [...data.map(d => d.price), ...data.map(d => d.avg)]
+      this.minValue = min(merge)
+      this.maxValue = max(merge)
+    } else {
+      this.minValue = this.chart.lastPrice
+      this.maxValue = this.chart.lastPrice
+    }
     this.resetYScale()
   }
   public draw(){
-    if (this.data && this.data.length > 0) {
-      const { frame } = this;
-      this.drawAxes();
-      this.titleDrawer.draw({
-        ...frame,
-        height: this.titleHeight
-      })
-      this.drawTimeShare()
-    }
+    const { frame } = this;
+    this.drawAxes()
+    this.titleDrawer.draw({
+      ...frame,
+      height: this.titleHeight
+    })
+    this.drawTimeShare()
   }
   @autoResetStyle()
   public drawFrontSight() {
@@ -124,13 +130,9 @@ export class TimeShareDrawer extends Drawer {
   }
   protected xTickFormatter(value: number, i?: number) {
     const d = new Date()
-    const data = this.data[value]
-    if (data) {
-      d.setTime(data.time * 60 * 1000)
-      return formateDate(d, 'HH:mm')
-    } else {
-      return ''
-    }
+    const minute = this.tradeTime.getMinute(value)
+    d.setTime(minute * 60 * 1000)
+    return formateDate(d, 'HH:mm')
   }
   protected drawYAxis() {
     const lastPrice = this.chart.lastPrice
@@ -164,7 +166,7 @@ export class TimeShareDrawer extends Drawer {
     return `${((value - lastPrice) / lastPrice * 100).toFixed(2)}%`
   }
   protected drawXAxis() {
-    let tickValues = uniq(divide(0, this.chart.options.count - 1, 5)
+    let tickValues = uniq(divide(0, this.chart.count() - 1, 5)
       .map(t => Math.floor(t)))
     drawXAxis(
       this.context,

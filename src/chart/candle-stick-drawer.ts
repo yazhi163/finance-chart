@@ -1,6 +1,5 @@
 import uniq from 'lodash.uniq'
-import { Chart, autoResetStyle, Drawer, YAxisDetail } from "./chart"
-import { ScaleLinear } from "../../node_modules/@types/d3-scale/index"
+import { Chart, autoResetStyle, YAxisDetail } from "./chart"
 import { area } from 'd3-shape'
 import { scaleLinear } from 'd3-scale'
 import { drawLine, drawYAxis, drawXAxis } from '../paint-utils/index'
@@ -11,6 +10,7 @@ import { formateDate } from "../algorithm/date";
 import { trimNulls } from "../algorithm/arrays";
 import { TITLE_HEIGHT, X_AXIS_HEIGHT } from '../constants/constants';
 import { Point } from '../graphic/primitive';
+import { Drawer } from './drawer';
 
 export const CandleStickWhiteTheme = {
   rise: '#F55559',
@@ -54,8 +54,10 @@ export class CandleStickDrawer extends Drawer {
 
   titleDrawer: ChartTitle
   protected data: CandleStickData[] = []
+  private _count: number
   constructor(chart: Chart, data: CandleStickData[] = []) {
     super(chart, data)
+    this._count = chart.options.count
     this.xTickFormatter = this.xTickFormatter.bind(this)
     this.context = chart.context
     this.titleDrawer = new ChartTitle(
@@ -71,26 +73,35 @@ export class CandleStickDrawer extends Drawer {
     );
     this.setData(data)
   }
+  public count() {
+    return this._count
+  }
   public setData(data: CandleStickData[]) {
     this.data = data;
-    const keys = this.MAIndicators.map(d => d.key)
-    keys.push('low', 'high')
-    let minV = Number.MAX_VALUE
-    let maxV = Number.MIN_VALUE
-    for (let i = 0, lenI = data.length; i < lenI; ++i) {
-      keys.forEach((key) => {
-        const v = data[i][key] as number
-        // ma data may be null, ignore it
-        if (v === null) return
-        if (v < minV) {
-          minV = v
-        } else if (v > maxV) {
-          maxV = v
-        }
-      })
+    if (this.data.length > 0) {
+      const keys = this.MAIndicators.map(d => d.key)
+      keys.push('low', 'high')
+      let minV = Number.MAX_VALUE
+      let maxV = Number.MIN_VALUE
+      for (let i = 0, lenI = data.length; i < lenI; ++i) {
+        keys.forEach((key) => {
+          const v = data[i][key] as number
+          // ma data may be null, ignore it
+          if (v === null) return
+          if (v < minV) {
+            minV = v
+          } else if (v > maxV) {
+            maxV = v
+          }
+        })
+      }
+      this.minValue = minV
+      this.maxValue = maxV
+    } else {
+      this.minValue = this.chart.lastPrice
+      this.maxValue = this.chart.lastPrice
     }
-    this.minValue = minV
-    this.maxValue = maxV
+    
     this.resetYScale()
   }
   public resize(frame: Rect) {
@@ -99,13 +110,11 @@ export class CandleStickDrawer extends Drawer {
   }
   public draw(){
     const { data } = this
-    if (data && data.length > 0){
-      const { frame } = this;
-      this.drawTitle(this.selectedIndex || this.data.length - 1)
-      this.drawAxes();
-      this.drawCandles()
-      this.drawMA()
-    }
+    const { frame } = this;
+    this.drawTitle(this.selectedIndex || this.data.length - 1)
+    this.drawAxes();
+    this.drawCandles()
+    this.drawMA()
   }
   public getYAxisDetail(y: number): YAxisDetail {
     return {
@@ -121,15 +130,17 @@ export class CandleStickDrawer extends Drawer {
   private drawTitle(i: number) {
     const { context: ctx, frame } = this
     const d = this.data[i]
-    this.MAIndicators.forEach(({ key }, i) => {
-      const m = ((d[key] as number) || 0).toFixed(2)
-      this.titleDrawer.setLabel(i, `${key.toUpperCase()}: ${m}`)
-    })
-    ctx.clearRect(0, frame.y, frame.width, this.titleHeight)
-    this.titleDrawer.draw({
-      ...this.frame,
-      height: this.titleHeight
-    })
+    if (this.data.length > 0) {
+      this.MAIndicators.forEach(({ key }, i) => {
+        const m = ((d[key] as number) || 0).toFixed(2)
+        this.titleDrawer.setLabel(i, `${key.toUpperCase()}: ${m}`)
+      })
+      ctx.clearRect(0, frame.y, frame.width, this.titleHeight)
+      this.titleDrawer.draw({
+        ...this.frame,
+        height: this.titleHeight
+      })
+    }
   }
   protected drawYAxis() {
     drawYAxis(
@@ -143,7 +154,7 @@ export class CandleStickDrawer extends Drawer {
     )
   }
   protected drawXAxis() {
-    let tickValues = uniq(divide(0, this.chart.options.count - 1, 5)
+    let tickValues = uniq(divide(0, this.chart.count() - 1, 5)
       .map(t => Math.floor(t)))
     drawXAxis(
       this.context,

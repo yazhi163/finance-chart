@@ -1,6 +1,5 @@
 import uniq from 'lodash.uniq'
-import { Drawer, Chart, autoResetStyle, YAxisDetail } from "./chart";
-import { ScaleLinear } from "../../node_modules/@types/d3-scale/index";
+import { Chart, autoResetStyle, YAxisDetail } from "./chart";
 import { scaleLinear } from 'd3-scale';
 import { max, min } from 'd3-array';
 import { Rect, Point } from "../graphic/primitive";
@@ -8,6 +7,7 @@ import { ChartTitle } from "./chart-title";
 import { drawYAxis, drawXAxis } from "../paint-utils/index";
 import { divide } from "../algorithm/divide";
 import { TITLE_HEIGHT, TITLE_MARGIN_BOTTOM } from '../constants/constants';
+import { Drawer } from './drawer';
 
 export const VolumeWhiteTheme = {
   rise: '#F55559',
@@ -81,15 +81,17 @@ export class VolumeDrawer extends Drawer {
   }
   public draw() {
     const { frame, data } = this
-    if (data.length === 0 ) return
     this.drawAxes()
     this.drawTitle(this.selectedIndex || this.data.length - 1)
     this.drawVolumes()
   }
   public setData(data: VolumeData[]) {
     super.setData(data)
-    this.minValue = min(data, d => d.volume)
-    this.maxValue = max(data, d => d.volume)
+    if (data.length > 0) {
+      this.maxValue = max(data, d => d.volume)
+    } else {
+      this.maxValue = 1000 * VolumeDrawer.proportion
+    }
     this.resetYScale()
   }
   public getYAxisDetail(y: number): YAxisDetail {
@@ -98,7 +100,8 @@ export class VolumeDrawer extends Drawer {
     }
   }
   private drawTitle(i: number) {
-    this.titleDrawer.setLabel(0, volumeLabel(this.data[i].volume))
+    const d = this.data[i]
+    this.titleDrawer.setLabel(0, volumeLabel(d ? this.data[i].volume : 0))
     const { context: ctx, frame } = this
     this.titleDrawer.draw({
       ...this.frame,
@@ -106,7 +109,7 @@ export class VolumeDrawer extends Drawer {
     })
   }
   protected drawXAxis() {
-    const tickValues = divide(0, this.chart.options.count - 1, 5)
+    const tickValues = divide(0, this.chart.count() - 1, 5)
     drawXAxis(
       this.context,
       tickValues,

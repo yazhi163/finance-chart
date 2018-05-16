@@ -1,8 +1,15 @@
 import './index.scss'
-import { TimeShareDrawer, TimeShareBlackTheme } from '../../src/chart/time-share-drawer'
-import { CandleStickDrawer, CandleStickData, CandleStickBlackTheme } from '../../src/chart/candle-stick-drawer';
-import { Chart, ChartBlackTheme } from '../../src/chart/chart'
-import { VolumeDrawer, VolumeData, VolumeBlackTheme } from '../../src/chart/volume-drawer'
+import {
+  TimeShareDrawer,
+  TimeShareBlackTheme,
+  CandleStickDrawer,
+  CandleStickData,
+  CandleStickBlackTheme,
+  Chart,
+  ChartBlackTheme,
+  VolumeDrawer,
+  VolumeData, VolumeBlackTheme,
+} from '../../src/index'
 import { formateDate } from '../../src/algorithm/date';
 import MOCK_TIME_SHARE from './mock-time-share';
 import MOCK_KLINE from './mock-kline';
@@ -21,9 +28,19 @@ function createTimeShare() {
   const timeShareChart = new Chart({
     selector: '#time-share',
     resolution: (window.devicePixelRatio || 1),
-    count: 240,
+    count: 0,
     lastPrice: 15.2,
     data: MOCK_TIME_SHARE,
+    tradeTimes: [
+      {
+          "open": 90,
+          "close": 210
+      },
+      {
+          "open": 300,
+          "close": 421
+      }
+    ],
     mainDrawer: TimeShareDrawer,
     auxiliaryDrawers: [
       class CustomVolumeDrawer extends VolumeDrawer {
@@ -93,6 +110,7 @@ function createKLine() {
     count: 50,
     lastPrice: 50.49999809265137,
     data: MOCK_KLINE,
+    tradeTimes: [],
     mainDrawer: CandleStickDrawer,
     auxiliaryDrawers: [
       class CustomVolumeDrawer extends VolumeDrawer {
