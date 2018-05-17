@@ -14,6 +14,7 @@ import {
 } from '../constants/constants';
 import { Drawer } from './drawer';
 import { TradeTimeSegment } from '../algorithm/tradetime';
+import { MovableRange } from '../algorithm/range';
 
 export interface DrawerContructor {
   new (chart: Chart, data: any[]): Drawer
@@ -142,7 +143,8 @@ export class Chart {
   auxiliaryDrawer: Drawer[] = []
   selectedAuxiliaryDrawer = 0
   destroyed = false
-  data: any[]
+  // data: any[]
+  movableRange: MovableRange<any[]>
   /**
    * 昨收价
    */
@@ -161,11 +163,14 @@ export class Chart {
     this.onTouchEnd = this.onTouchEnd.bind(this);
 
     this.options = createOptions(options)
-    this.data = this.options.data
     this.lastPrice = this.options.lastPrice
     this.resize = this.resize.bind(this)
-  
+    this.movableRange = new MovableRange(this.options.data, 0)
     this.create()
+    this.setData(this.options.data)
+  }
+  get data() {
+    return this.movableRange.visible()
   }
   get mainChartY() {
     return 0
@@ -202,6 +207,7 @@ export class Chart {
     options.auxiliaryDrawers.forEach((drawer) => {
       this.auxiliaryDrawer.push(new drawer(this, this.data))
     })
+    this.movableRange.setVisibleLength(this.count())
     this.resize()
   }
   private destroyDrawer() {
@@ -238,18 +244,21 @@ export class Chart {
     })
     this.resetXScale()
   }
-  @shouldRedraw()
   public setData(data: any[], clean = false) {
     if (this.destroyed) {
       throw new Error('Chart has been destroyed, method#setData didn\'t allow to be called')
     }
-    this.data = data
+
+    this.movableRange.setData(data)
     if (clean) {
       this.destroyDrawer()
       this.createDrawer()
     }
-    this.mainDrawer && this.mainDrawer.setData(data)
-    this.auxiliaryDrawer && this.auxiliaryDrawer.forEach(drawer => drawer.setData(data))
+    this._resetDrawerData()
+  }
+  public move(step: number) {
+    this.movableRange.move(step)
+    this._resetDrawerData()
   }
   @shouldRedraw()
   public setLastPrice(value: number) {
@@ -268,9 +277,9 @@ export class Chart {
     if (!this.requestAnimationFrameId) {
       this.requestAnimationFrameId = requestAnimationFrame(() => {
         this.context.clearRect(0, 0, this.width, this.height)
-        // if (process.env.NODE_ENV === 'development') {
-        //   console.time('rendering cost');
-        // }
+        if (process.env.NODE_ENV === 'development') {
+          console.time('rendering cost');
+        }
         this.context.fillStyle = Chart.theme.background
         this.context.fillRect(0, 0, this.width, this.height);
         this.mainDrawer && this.mainDrawer.draw()
@@ -281,11 +290,17 @@ export class Chart {
           this.drawFrontSight();
         }
 
-        // if (process.env.NODE_ENV === 'development') {
-        //   console.timeEnd('rendering cost');
-        // }
+        if (process.env.NODE_ENV === 'development') {
+          console.timeEnd('rendering cost');
+        }
       })
     }
+  }
+  @shouldRedraw()
+  private _resetDrawerData() {
+    const visibleData = this.movableRange.visible()
+    this.mainDrawer && this.mainDrawer.setData(visibleData)
+    this.auxiliaryDrawer && this.auxiliaryDrawer.forEach(drawer => drawer.setData(visibleData))
   }
   @autoResetStyle()
   private drawFrontSight() {
