@@ -17,8 +17,9 @@ export class Drawer {
   private _xAxisTickHeight = X_AXIS_HEIGHT
   constructor(public chart: Chart, data: Object[]) {
     this.context = chart.context
-    this.selectedIndex = data.length - 1
+    this.selectedIndex = null
     this.tradeTime = new TradeTime(chart.options.tradeTimes)
+    this.data = data
   }
   draw() {
 
@@ -64,24 +65,12 @@ export class Drawer {
   protected get xAxisTickHeight() {
     return this._xAxisTickHeight * this.chart.options.resolution
   }
-  protected topValue = ((lastMaxValue = 0, lastTopValue = Number.MIN_VALUE) => 
-    () => {
-      const top = this.maxValue * (1.01)
-      if (top > lastTopValue) {
-        lastTopValue = top
-      }
-      return lastTopValue
-    }
-  )()
-  protected bottomValue = ((lastMinValue = 0, lastBottomValue = Number.MAX_VALUE) => 
-    () => {
-      const bottom = this.minValue * (0.99)
-      if (bottom < lastBottomValue) {
-        lastBottomValue = bottom
-      }
-      return lastBottomValue
-    }
-  )()
+  protected topValue = () => {
+    return this.maxValue * (1.01)
+  }
+  protected bottomValue = () => {
+    return this.minValue * (0.99)
+  }
   protected resetYScale() {
     const { chartFrame } = this;
     const resolution = this.chart.options.resolution

@@ -134,6 +134,22 @@ export class TimeShareDrawer extends Drawer {
     d.setTime(minute * 60 * 1000)
     return formateDate(d, 'HH:mm')
   }
+  protected topValue = ((lastTopValue = Number.MIN_VALUE) => 
+    () => {
+      if (this.maxValue > lastTopValue) {
+        lastTopValue = this.maxValue * (1.01)
+      }
+      return lastTopValue
+    }
+  )()
+  protected bottomValue = ((lastBottomValue = Number.MAX_VALUE) => 
+    () => {
+      if (this.minValue < lastBottomValue) {
+        lastBottomValue = this.minValue * (0.99)
+      }
+      return lastBottomValue
+    }
+  )()
   protected drawYAxis() {
     const lastPrice = this.chart.lastPrice
     const tickValues = divide(this.bottomValue(), this.topValue()).map(n => ({
