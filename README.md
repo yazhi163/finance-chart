@@ -3,6 +3,8 @@
 Awesome finance chart
 
 
+
+
 ## Install
 
 ```shell
@@ -54,3 +56,8 @@ npm run dist
 赏块披萨, 支持开发
 
 [微信赞赏码](https://github.com/dz-web/finance-chart/issues/1)
+
+
+### Thanks to BrowserStack
+
+[![234](https://3fxtqy18kygf3on3bu39kh93-wpengine.netdna-ssl.com/wp-content/uploads/2018/03/header-logo.svg)](https://www.browserstack.com)
