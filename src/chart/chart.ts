@@ -110,9 +110,10 @@ function createOptions(
 }
 
 enum InteractiveState {
-  ShowDetail,
-  Dragging,
-  None
+  None = 0,
+  ShowDetail = 1,
+  Dragging = 1 << 1,
+  Srolling = 1 << 2
 }
 export const ChartWhiteTheme = {
   frontSight: '#4B99FB',
@@ -151,10 +152,14 @@ export class Chart {
   lastPrice: number
   private detailPoint: Point
   private interactive: InteractiveState = InteractiveState.None
-  private touchTimeoutId: number = null
+  private touchTimeoutId: number
+  private lastMouseX: number
+  private lastMouseY: number
+  private hasMoved = 0
 
   constructor(options: ChartOptions) {
-
+    this.onMouseDown = this.onMouseDown.bind(this);
+    this.onMouseUp = this.onMouseUp.bind(this);
     this.onMouseEnter = this.onMouseEnter.bind(this)
     this.onMouseMove = this.onMouseMove.bind(this)
     this.onMouseLeave = this.onMouseLeave.bind(this)
@@ -256,9 +261,25 @@ export class Chart {
     }
     this._resetDrawerData()
   }
+  drag(distance: number) {
+    const dist = distance * this.options.resolution
+    this.hasMoved += dist
+    const width = this.xScale(2) - this.xScale(1)
+    let count = this.hasMoved / width
+    count = count > 0 ? Math.floor(count) : Math.ceil(count)
+    this.hasMoved %= width
+    if (count !== 0) {
+      // reverse direction
+      this.move(-count)
+    }
+  } 
   public move(step: number) {
-    this.movableRange.move(step)
-    this._resetDrawerData()
+    const moved = this.movableRange.move(step)
+    if (moved) {
+      this._resetDrawerData()
+    } else if (step < 0) {
+      // console.log(moved)
+    }
   }
   @shouldRedraw()
   public setLastPrice(value: number) {
@@ -286,7 +307,7 @@ export class Chart {
         this.auxiliaryDrawer[this.selectedAuxiliaryDrawer] &&
           this.auxiliaryDrawer[this.selectedAuxiliaryDrawer].draw()
         this.requestAnimationFrameId = null
-        if (this.interactive === InteractiveState.ShowDetail) {
+        if (this.interactive & InteractiveState.ShowDetail) {
           this.drawFrontSight();
         }
 
@@ -398,11 +419,13 @@ export class Chart {
     this.detailElement.className = 'chart-detail'
     this.rootElement.appendChild(this.detailElement)
     canvas.addEventListener('contextmenu', e => e.preventDefault())
-    // 'hybrid' on android system
+    // will be 'hybrid' on android system
     if (detectIt.deviceType === 'mouseOnly') {
       canvas.addEventListener('mouseenter', this.onMouseEnter)
       canvas.addEventListener('mousemove', this.onMouseMove)
       canvas.addEventListener('mouseleave', this.onMouseLeave)
+      canvas.addEventListener('mousedown', this.onMouseDown)
+      canvas.addEventListener('mouseup', this.onMouseUp)
     } else {
       canvas.addEventListener('touchstart', this.onTouchStart)
       canvas.addEventListener('touchmove', this.onTouchMove)
@@ -412,36 +435,60 @@ export class Chart {
   private onTouchStart(e: TouchEvent) {
     const rect = (<HTMLElement>e.target).getBoundingClientRect()
     const { clientX, clientY } = e.touches[0]
+    this.lastMouseX = clientX
+    this.lastMouseY = clientY
     this.touchTimeoutId = window.setTimeout(() => {
       this.showDetail(
         clientX - rect.left,
         clientY - rect.top
       )
       this.touchTimeoutId = null
-    }, 100)
+    }, 200)
   }
   private onTouchMove(e: TouchEvent) {
-    if (this.interactive === InteractiveState.ShowDetail) {
+    const { clientX, clientY } = e.touches[0]
+    if (this.interactive & InteractiveState.ShowDetail) {
       e.preventDefault()
       const rect = (<HTMLElement>e.target).getBoundingClientRect()
-      const { clientX, clientY } = e.touches[0]
       this.showDetail(
         clientX - rect.left,
         clientY - rect.top
       )
-    } else {
+    } else if (this.interactive & InteractiveState.Dragging) {
+      e.preventDefault()
+      this.onDrag(clientX)
+    } else if (this.interactive === InteractiveState.None) {
       this.clearTouchTimeout()
+      if (Math.abs(clientX - this.lastMouseX) > Math.abs(clientY - this.lastMouseY)) {
+        this.interactive |= InteractiveState.Dragging
+        this.lastMouseX = clientX
+      } else {
+        this.interactive |= InteractiveState.Srolling
+      }
     }
+  }
+  private onDrag(clientX: number) {
+    const distance = clientX - this.lastMouseX
+    this.lastMouseX = clientX
+    this.drag(distance)
   }
   private onTouchEnd(e: TouchEvent) {
     this.clearTouchTimeout()
     this.hideDetail()
+    this.interactive = InteractiveState.None
   }
   private clearTouchTimeout() {
     if (this.touchTimeoutId) {
       clearTimeout(this.touchTimeoutId);
     }
     this.touchTimeoutId = null;
+  }
+  private onMouseDown(e: MouseEvent) {
+    this.interactive |= InteractiveState.Dragging
+    this.lastMouseX = e.clientX
+  }
+  private onMouseUp(e: MouseEvent) {
+    this.interactive &= ~InteractiveState.Dragging
   }
   private onMouseEnter(e: MouseEvent) {
     const rect = (<HTMLElement>e.target).getBoundingClientRect()
@@ -452,8 +499,12 @@ export class Chart {
   }
   private onMouseMove(e: MouseEvent) {
     const rect = (<HTMLElement>e.target).getBoundingClientRect()
+    const clientX = e.clientX;
+    if (this.interactive & InteractiveState.Dragging) {
+      this.onDrag(clientX)
+    }
     this.showDetail(
-      e.clientX - rect.left,
+      clientX - rect.left,
       e.clientY - rect.top
     )
   }
@@ -461,6 +512,7 @@ export class Chart {
     const x = e.clientX - (<HTMLElement>e.target).getBoundingClientRect().left,
           y = e.clientY - (<HTMLElement>e.target).getBoundingClientRect().top
     this.hideDetail()
+    this.interactive &= ~InteractiveState.Dragging
   }
   @shouldRedraw()
   private showDetail(x: number, y: number) {
@@ -476,7 +528,7 @@ export class Chart {
       this.hideDetail()
       return
     }
-    this.interactive = InteractiveState.ShowDetail
+    this.interactive |= InteractiveState.ShowDetail
     this.detailElement.style.display = 'block'
     const distanceToEnd = this.width / resolution - PADDING_RIGHT - x
     if (distanceToEnd < DETAIL_PANEL_WIDTH + 10) {
@@ -535,7 +587,7 @@ export class Chart {
   }
   @shouldRedraw()
   private hideDetail() {
-    this.interactive = InteractiveState.None
+    this.interactive &= ~InteractiveState.ShowDetail
     this.detailElement.style.display = 'none'
     this.detailAt(null)
   }
