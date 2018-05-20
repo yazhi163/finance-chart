@@ -1,5 +1,5 @@
 {
-  "name": "@gitpadtech/finance-chart",
+  "name": "@gitpad/finance-chart",
   "version": "0.7.2",
   "description": "finance chart for dz-web",
   "main": "index.js",
