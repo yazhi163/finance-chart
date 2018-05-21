@@ -55,7 +55,7 @@ npm run dist
 
 赏块披萨, 支持开发
 
-[微信赞赏码](https://github.com/dz-web/finance-chart/issues/1)
+[微信赞赏码](https://github.com/gitpadtech/finance-chart/issues/1)
 
 
 ### Thanks to BrowserStack
