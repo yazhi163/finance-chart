@@ -1,6 +1,6 @@
 {
   "name": "@gitpad/finance-chart",
-  "version": "0.7.3",
+  "version": "0.7.4",
   "description": "finance chart for dz-web",
   "main": "index.js",
   "types": "./dist/index.d.ts",
@@ -9,7 +9,7 @@
     "dist": "npm run clean && webpack --config ./dev/webpack.config.js",
     "example": "rimraf example-dist/ && webpack --config ./dev/webpack.example.js",
     "start": "node ./dev/serve.js",
-    "prepublishOnly": "npm run dist && npm run example",
+    "prepublishOnly": "npm run dist",
     "pub": "npm publish --access public",
     "test": "node ./dev/jest/start.js",
     "test:coverage": "npm run test -- --coverage",
