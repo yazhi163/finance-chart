@@ -2,14 +2,14 @@ import uniq from 'lodash.uniq'
 import { Chart, autoResetStyle, YAxisDetail } from "./chart"
 import { area } from 'd3-shape'
 import { min, max } from 'd3-array';
-import { scaleLinear } from 'd3-scale'
 import { drawLine, drawYAxis, drawXAxis } from "../paint-utils/index";
-import { Rect, Point } from "../graphic/primitive";
+import { Rect } from "../graphic/primitive";
 import { ChartTitle } from "./chart-title";
 import { divide } from "../algorithm/divide";
 import { formateDate } from "../algorithm/date";
-import { TITLE_HEIGHT, X_AXIS_HEIGHT } from '../constants/constants';
 import { Drawer } from './drawer';
+import { MovableRange } from '../algorithm/range';
+import { TimeShareData } from './data-structure';
 
 export const TimeShareWhiteTheme = {
   price: '#4B99FB',
@@ -40,18 +40,12 @@ export const TimeShareBlackTheme = {
   xTick: '#AEB4BE'
 }
 
-export interface TimeShareData {
-  price: number;
-  avg: number;
-  time: number;
-}
-
 export class TimeShareDrawer extends Drawer {
   static theme = TimeShareWhiteTheme
   titleDrawer: ChartTitle
-  protected data: TimeShareData[]
-  constructor(chart: Chart, data: TimeShareData[] = []) {
-    super(chart, data)
+  protected range: MovableRange<TimeShareData>
+  constructor(chart: Chart) {
+    super(chart)
     this.xTickFormatter = this.xTickFormatter.bind(this)
     this.context = chart.context
     this.titleDrawer = new ChartTitle(
@@ -71,15 +65,15 @@ export class TimeShareDrawer extends Drawer {
       TimeShareDrawer.theme.titleBackground,
       'white',
       this.chart.options.resolution
-    );
-    this.setData(data)
+    )
   }
   public count() {
     return this.tradeTime.totalMinutes()
   }
-  public setData(data: TimeShareData[]) {
-    this.data = data;
-    if (this.data.length > 0) {
+  public setRange(range: MovableRange<TimeShareData>) {
+    super.setRange(range)
+    const data = this.range.data
+    if (data.length > 0) {
       const merge = [...data.map(d => d.price), ...data.map(d => d.avg)]
       this.minValue = min(merge)
       this.maxValue = max(merge)
@@ -100,8 +94,9 @@ export class TimeShareDrawer extends Drawer {
   }
   @autoResetStyle()
   public drawFrontSight() {
-    const { context: ctx, yScale, data } = this
+    const { context: ctx, yScale, range } = this
     const { xScale } = this.chart
+    const data = range.visible()
     const selectedIndex = this.selectedIndex
     const x = xScale(selectedIndex)
     const size = 5 * this.chart.options.resolution
@@ -204,14 +199,14 @@ export class TimeShareDrawer extends Drawer {
   protected drawTimeShare() {
     const { frame } = this
     const { xScale } = this.chart
-    const { context: ctx, yScale } = this
+    const { context: ctx, yScale, range } = this
     const drawArea = area<TimeShareData>()
       .x((d, i) => xScale(i))
       .y0(d => yScale(d.price))
       .y1(frame.height - this.xAxisTickHeight)
       .context(ctx)
     ctx.beginPath()
-    drawArea(this.data)
+    drawArea(range.visible())
     const linearGradient = ctx.createLinearGradient(0, 0, 0, frame.height)
     TimeShareDrawer.theme.linearGradient.forEach((color, i) =>
       linearGradient.addColorStop(i, color))
@@ -222,11 +217,11 @@ export class TimeShareDrawer extends Drawer {
   }
   @autoResetStyle()
   protected drawLine(key: keyof TimeShareData, color = 'black') {
-    const { yScale, context: ctx } = this
+    const { yScale, context: ctx,  range } = this
     const { xScale } = this.chart
     drawLine(
       ctx,
-      this.data.map((item, i) => ({
+      range.visible().map((item, i) => ({
         x: xScale(i),
         y: yScale(item[key]),
       })),

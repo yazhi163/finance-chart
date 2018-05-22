@@ -144,8 +144,7 @@ export class Chart {
   auxiliaryDrawer: Drawer[] = []
   selectedAuxiliaryDrawer = 0
   destroyed = false
-  // data: any[]
-  movableRange: MovableRange<any[]>
+  movableRange: MovableRange<Object>
   /**
    * 昨收价
    */
@@ -319,9 +318,8 @@ export class Chart {
   }
   @shouldRedraw()
   private _resetDrawerData() {
-    const visibleData = this.movableRange.visible()
-    this.mainDrawer && this.mainDrawer.setData(visibleData)
-    this.auxiliaryDrawer && this.auxiliaryDrawer.forEach(drawer => drawer.setData(visibleData))
+    this.mainDrawer && this.mainDrawer.setRange(this.movableRange)
+    this.auxiliaryDrawer && this.auxiliaryDrawer.forEach(drawer => drawer.setRange(this.movableRange))
   }
   @autoResetStyle()
   private drawFrontSight() {

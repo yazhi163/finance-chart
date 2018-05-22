@@ -3,12 +3,13 @@ import {
   TimeShareDrawer,
   TimeShareBlackTheme,
   CandleStickDrawer,
-  CandleStickData,
   CandleStickBlackTheme,
   Chart,
   ChartBlackTheme,
   VolumeDrawer,
-  VolumeData, VolumeBlackTheme,
+  VolumeBlackTheme,
+  CandleStickVolumeDrawer,
+  TimeShareVolumeDrawer,
 } from '../../src/index'
 import { formateDate } from '../../src/algorithm/date';
 import MOCK_TIME_SHARE from './mock-time-share';
@@ -43,13 +44,7 @@ function createTimeShare() {
     ],
     mainDrawer: TimeShareDrawer,
     auxiliaryDrawers: [
-      class CustomVolumeDrawer extends VolumeDrawer {
-        calcDeltaPrice(currentValue: VolumeData, currentIndex: number, data: VolumeData[]): number {
-          // 第一个项数据应该与昨收价比较
-          if (currentIndex === 0) return 0;
-          return super.calcDeltaPrice(currentValue, currentIndex, data);
-        }
-      }
+      TimeShareVolumeDrawer
     ],
     detailProvider: (i, data) => {
       const date = new Date()
@@ -104,7 +99,7 @@ function createKLine() {
       color: '#EC6ED9'
     }
   ]
-  const klineChart = new Chart({
+  new Chart({
     selector: '#candle-stick',
     resolution: (window.devicePixelRatio || 1),
     count: 50,
@@ -113,12 +108,7 @@ function createKLine() {
     tradeTimes: [],
     mainDrawer: CandleStickDrawer,
     auxiliaryDrawers: [
-      class CustomVolumeDrawer extends VolumeDrawer {
-        calcDeltaPrice(currentValue: VolumeData, currentIndex: number, data: any[]): number {
-          const { open, close } = data[currentIndex]
-          return close - open
-        }
-      }
+      CandleStickVolumeDrawer
     ],
     detailProvider: (i, data) => {
       const WEEK_DAY_MAP: { [index: number]: string} = {

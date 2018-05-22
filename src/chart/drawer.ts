@@ -3,23 +3,24 @@ import { ScaleLinear, scaleLinear } from 'd3-scale'
 import { X_AXIS_HEIGHT, TITLE_HEIGHT, TITLE_MARGIN_BOTTOM } from "../constants/constants";
 import { Chart, YAxisDetail } from "./chart";
 import { TradeTime } from "../index";
+import { MovableRange } from "../algorithm/range";
 
 export class Drawer {
   context: CanvasRenderingContext2D
   frame: Rect = { x: 0, y: 0, width: 0, height: 0}
   chartFrame: Rect = { x: 0, y: 0, width: 0, height: 0}
-  protected data: Object[]
+  protected range: MovableRange<Object>
   protected selectedIndex: number
   protected minValue = 0
   protected maxValue = 0
   protected yScale: ScaleLinear<number, number>
   protected tradeTime: TradeTime
   private _xAxisTickHeight = X_AXIS_HEIGHT
-  constructor(public chart: Chart, data: Object[]) {
+  constructor(public chart: Chart) {
     this.context = chart.context
     this.selectedIndex = null
     this.tradeTime = new TradeTime(chart.options.tradeTimes)
-    this.data = data
+    this.setRange(chart.movableRange)
   }
   draw() {
 
@@ -38,8 +39,8 @@ export class Drawer {
         this.xAxisTickHeight
     }
   }
-  setData(data: Object[]) {
-    this.data = data;
+  setRange(range: MovableRange<Object>) {
+    this.range = range
   }
   select(i: number) {
     this.selectedIndex = i

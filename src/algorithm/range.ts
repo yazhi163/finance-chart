@@ -4,7 +4,7 @@ export class MovableRange<T> {
   endPosition: number
   visibleLength: number
   constructor(
-    private data: T[],
+    public data: T[],
     length: number
   ) {
     this.endPosition = this.data.length
@@ -26,9 +26,12 @@ export class MovableRange<T> {
   }
   visible() {
     return this.data.slice(
-      clamp(this.endPosition - this.visibleLength, 0, this.data.length),
+      this.visibleStartIndex(),
       this.endPosition
     )
+  }
+  visibleStartIndex() {
+    return clamp(this.endPosition - this.visibleLength, 0, this.data.length)
   }
   /**
    * move visible range

@@ -1,17 +1,21 @@
 import uniq from 'lodash.uniq'
 import { Chart, autoResetStyle, YAxisDetail } from "./chart";
 import { scaleLinear } from 'd3-scale';
-import { max, min } from 'd3-array';
-import { Rect, Point } from "../graphic/primitive";
+import { max } from 'd3-array';
+import { Rect } from "../graphic/primitive";
 import { ChartTitle } from "./chart-title";
 import { drawYAxis, drawXAxis } from "../paint-utils/index";
 import { divide } from "../algorithm/divide";
-import { TITLE_HEIGHT, TITLE_MARGIN_BOTTOM } from '../constants/constants';
+import { TITLE_MARGIN_BOTTOM } from '../constants/constants';
 import { Drawer } from './drawer';
+import { MovableRange } from '../algorithm/range';
+import { VolumeData, CandleStickData, TimeShareData } from './data-structure';
+import { determineCandleColor } from '../algorithm/color';
 
 export const VolumeWhiteTheme = {
   rise: '#F55559',
   fall: '#7DCE8D',
+  same: '#5E6572',
   volumeText: '#F78081',
   titleBackground: '#F2F4F4',
   title: '#5E667F',
@@ -21,16 +25,12 @@ export const VolumeWhiteTheme = {
 export const VolumeBlackTheme = {
   rise: '#F55559',
   fall: '#7DCE8D',
+  same: '#5E6572',
   volumeText: '#F78081',
   titleBackground: '#22252B',
   title: '#AEB4BE',
   gridLine: '#282D38',
   yTick: '#AEB4BE'
-}
-
-
-export interface VolumeData {
-  volume: number
 }
 
 const shortenVolume = (v: number) => {
@@ -55,9 +55,9 @@ export class VolumeDrawer extends Drawer {
   static proportion = 100
   static unit = '手'
   titleDrawer: ChartTitle
-  data: VolumeData[]
-  constructor(chart: Chart, data: VolumeData[]) {
-    super(chart, data)
+  protected range: MovableRange<VolumeData>
+  constructor(chart: Chart) {
+    super(chart)
     this.xAxisTickHeight = 0
     this.context = chart.context
     this.titleDrawer = new ChartTitle(
@@ -73,20 +73,20 @@ export class VolumeDrawer extends Drawer {
       VolumeDrawer.theme.title,
       this.chart.options.resolution
     )
-    this.setData(data)
   }
   public resize(frame: Rect): void {
     super.resize(frame)
     this.resetYScale()
   }
   public draw() {
-    const { frame, data } = this
+    const data = this.range.visible()
     this.drawAxes()
-    this.drawTitle(this.selectedIndex || this.data.length - 1)
+    this.drawTitle(this.selectedIndex || data.length - 1)
     this.drawVolumes()
   }
-  public setData(data: VolumeData[]) {
-    super.setData(data)
+  public setRange(range: MovableRange<VolumeData>) {
+    super.setRange(range)
+    const data = this.range.visible()
     if (data.length > 0) {
       this.maxValue = max(data, d => d.volume)
     } else {
@@ -100,9 +100,9 @@ export class VolumeDrawer extends Drawer {
     }
   }
   private drawTitle(i: number) {
-    const d = this.data[i]
-    this.titleDrawer.setLabel(0, volumeLabel(d ? this.data[i].volume : 0))
-    const { context: ctx, frame } = this
+    const data = this.range.visible()
+    const d = data[i]
+    this.titleDrawer.setLabel(0, volumeLabel(d ? data[i].volume : 0))
     this.titleDrawer.draw({
       ...this.frame,
       height: this.titleHeight
@@ -150,12 +150,19 @@ export class VolumeDrawer extends Drawer {
   }
   @autoResetStyle()
   protected drawVolumes() {
-    const { chartFrame } = this
+    const {  } = this
     const { xScale } = this.chart
-    const { context: ctx, yScale } = this
-
-    this.data.forEach((d, i) => {
-      ctx.fillStyle = this.calcDeltaPrice(d, i, this.data) > 0 ? VolumeDrawer.theme.rise : VolumeDrawer.theme.fall;
+    const { context: ctx, yScale, chartFrame, range } = this
+    const data = range.visible()
+    data.forEach((d, i) => {
+      const deltaPrice = this.calcDeltaPrice(d, i, data)
+      if (deltaPrice > 0) {
+        ctx.fillStyle = VolumeDrawer.theme.rise
+      } else if (deltaPrice < 0) {
+        ctx.fillStyle = VolumeDrawer.theme.fall
+      } else {
+        ctx.fillStyle = VolumeDrawer.theme.same
+      }
       const x = xScale(i),
             y = yScale(d.volume),
             height = chartFrame.height - (y - chartFrame.y)
@@ -173,10 +180,22 @@ export class VolumeDrawer extends Drawer {
         chartFrame.y + TITLE_MARGIN_BOTTOM * this.chart.options.resolution
       ])
   }
-  calcDeltaPrice(currentValue: VolumeData, currentIndex: number, data: VolumeData[]): number {
+  calcDeltaPrice(currentValue: Object, currentIndex: number, data: Object[]): number {
+    return 1
+  }
+}
+export class TimeShareVolumeDrawer extends VolumeDrawer {
+  calcDeltaPrice(currentValue: TimeShareData, currentIndex: number, data: TimeShareData[]): number {
     if (currentIndex === 0) {
-      return 0;
+      return 1
     }
-    return currentValue.volume - data[currentIndex - 1].volume;
+    return currentValue.price - data[currentIndex - 1].price
+  }
+}
+export class CandleStickVolumeDrawer extends VolumeDrawer {
+  protected range: MovableRange<CandleStickData>
+  calcDeltaPrice(currentValue: CandleStickData, currentIndex: number): number {
+    const range = this.range
+    return determineCandleColor(currentValue, currentIndex, range)
   }
 }

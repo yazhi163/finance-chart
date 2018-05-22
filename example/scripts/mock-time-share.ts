@@ -1,21 +1,21 @@
 export default  [
   {
     "time": 90,
-    "price": 15.180000305175781,
+    "price": 15,
     "avg": 15.213459968566895,
     "volume": 78900,
     "holdAmount": 1199751
   },
   {
     "time": 91,
-    "price": 15.069999694824219,
+    "price": 15,
     "avg": 15.17087173461914,
     "volume": 104600,
     "holdAmount": 1583578
   },
   {
     "time": 92,
-    "price": 15.100000381469727,
+    "price": 15,
     "avg": 15.16372013092041,
     "volume": 19705,
     "holdAmount": 297032

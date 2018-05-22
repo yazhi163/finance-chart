@@ -87,3 +87,16 @@ describe('MovableRange#setData', () => {
     expect(range.endPosition).toBe(1)
   })
 })
+describe('MovableRange#visibleStartIndex', () => {
+  test('Should return correct visible start index', () => {
+    const data = [0, 1, 2, 3, 4]
+    const range = new MovableRange(data, 2)
+    expect(range.visibleStartIndex()).toBe(3)
+    range.setVisibleLength(10)
+    expect(range.visibleStartIndex()).toBe(0)
+    range.setVisibleLength(1)
+    expect(range.visibleStartIndex()).toBe(4)
+    range.setVisibleLength(0)
+    expect(range.visibleStartIndex()).toBe(5)
+  })
+})

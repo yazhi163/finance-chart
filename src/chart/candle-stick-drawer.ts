@@ -1,21 +1,19 @@
 import uniq from 'lodash.uniq'
 import { Chart, autoResetStyle, YAxisDetail } from "./chart"
-import { area } from 'd3-shape'
-import { scaleLinear } from 'd3-scale'
 import { drawLine, drawYAxis, drawXAxis } from '../paint-utils/index'
 import { Rect } from "../graphic/primitive";
 import { ChartTitle } from "./chart-title";
 import { divide } from "../algorithm/divide";
 import { formateDate } from "../algorithm/date";
 import { trimNulls } from "../algorithm/arrays";
-import { TITLE_HEIGHT, X_AXIS_HEIGHT } from '../constants/constants';
-import { Point } from '../graphic/primitive';
 import { Drawer } from './drawer';
+import { MovableRange } from '../algorithm/range';
+import { CandleStickData } from './data-structure';
+import { determineCandleColor } from '../algorithm/color';
 
 export const CandleStickWhiteTheme = {
   rise: '#F55559',
   fall: '#7DCE8D',
-  same: '#7DCE8D',
   titleBackground: '#F2F4F4',
   title: '#5E667F',
   gridLine: '#E7EAEB',
@@ -26,21 +24,11 @@ export const CandleStickWhiteTheme = {
 export const CandleStickBlackTheme = {
   rise: '#F55559',
   fall: '#7DCE8D',
-  same: '#7DCE8D',
   titleBackground: '#22252B',
   title: '#AEB4BE',
   gridLine: '#282D38',
   yTick: '#AEB4BE',
   xTick: '#AEB4BE'
-}
-
-export interface CandleStickData {
-  time: string;
-  open: number;
-  close: number;
-  high: number;
-  low: number;
-  [key: string]: number|string
 }
 
 export interface MAIndicator {
@@ -53,10 +41,10 @@ export class CandleStickDrawer extends Drawer {
   static MAIndicators: MAIndicator[] = []
 
   titleDrawer: ChartTitle
-  protected data: CandleStickData[] = []
+  protected range: MovableRange<CandleStickData>
   private _count: number
   constructor(chart: Chart, data: CandleStickData[] = []) {
-    super(chart, data)
+    super(chart)
     this._count = chart.options.count
     this.xTickFormatter = this.xTickFormatter.bind(this)
     this.context = chart.context
@@ -71,14 +59,14 @@ export class CandleStickDrawer extends Drawer {
       CandleStickDrawer.theme.title,
       this.chart.options.resolution
     );
-    this.setData(data)
   }
   public count() {
     return this._count
   }
-  public setData(data: CandleStickData[]) {
-    this.data = data;
-    if (this.data.length > 0) {
+  public setRange(range: MovableRange<CandleStickData>) {
+    super.setRange(range)
+    const data = range.visible()
+    if (data.length > 0) {
       const keys = this.MAIndicators.map(d => d.key)
       keys.push('low', 'high')
       let minV = Number.MAX_VALUE
@@ -109,9 +97,7 @@ export class CandleStickDrawer extends Drawer {
     this.resetYScale()
   }
   public draw(){
-    const { data } = this
-    const { frame } = this;
-    this.drawTitle(this.selectedIndex || this.data.length - 1)
+    this.drawTitle(this.selectedIndex || this.range.visible().length - 1)
     this.drawAxes();
     this.drawCandles()
     this.drawMA()
@@ -122,15 +108,16 @@ export class CandleStickDrawer extends Drawer {
     }
   }
   public getXAxisDetail(i: number): string {
-    return this.xTickDetailFormatter(i, this.data)
+    return this.xTickDetailFormatter(i, this.range.visible())
   }
   get MAIndicators() {
     return Object.getPrototypeOf(this).constructor.MAIndicators as MAIndicator[]
   }
   private drawTitle(i: number) {
-    const { context: ctx, frame } = this
-    const d = this.data[i]
-    if (this.data.length > 0) {
+    const { context: ctx, frame, range } = this
+    const data = range.visible()
+    const d = data[i]
+    if (data.length > 0) {
       this.MAIndicators.forEach(({ key }, i) => {
         const m = ((d[key] as number) || 0).toFixed(2)
         this.titleDrawer.setLabel(i, `${key.toUpperCase()}: ${m}`)
@@ -165,7 +152,7 @@ export class CandleStickDrawer extends Drawer {
       true,
       CandleStickDrawer.theme.gridLine,
       (v: number) => {
-        return this.xTickFormatter(v, this.data)
+        return this.xTickFormatter(v, this.range.visible())
       },
       CandleStickDrawer.theme.xTick
     )
@@ -195,10 +182,10 @@ export class CandleStickDrawer extends Drawer {
     this.drawYAxis()
   }
   protected drawMA() {
-    const { data, yScale } = this
+    const { yScale, range } = this
     const { xScale } = this.chart
     this.MAIndicators.forEach(({key, color}) => {
-      const trimed = trimNulls(data.map(d => d[key] as number))
+      const trimed = trimNulls(range.visible().map(d => d[key] as number))
       drawLine(
         this.context,
         trimed.result.map((d, i) => ({
@@ -212,28 +199,22 @@ export class CandleStickDrawer extends Drawer {
   }
   @autoResetStyle()
   protected drawCandles() {
-    const { frame } = this
     const { xScale } = this.chart
-    const { context: ctx, yScale } = this
+    const { context: ctx, yScale, range } = this
     const { resolution } = this.chart.options
-    this.data.forEach((d, i) => {
+    range.visible().forEach((d, i) => {
       const maxV = Math.max(d.close, d.open),
             minV = Math.min(d.close, d.open),
             y = yScale(maxV),
-            height = Math.abs(yScale(d.close) - yScale(d.open))
+            height = Math.max(
+              Math.abs(yScale(d.close) - yScale(d.open)), 1 * resolution
+            )
       let width = xScale(1) - xScale(0)
       width -= width * 0.2
       const x = xScale(i) - width / 2
-      if (d.close > d.open) {
-        ctx.fillStyle = ctx.strokeStyle = CandleStickDrawer.theme.rise
-        ctx.fillRect(x, y, width, height)
-      } else if (d.close < d.open) {
-        ctx.fillStyle= ctx.strokeStyle =  CandleStickDrawer.theme.fall
-        ctx.fillRect(x, y, width, height)
-      } else {
-        ctx.fillStyle = ctx.strokeStyle =  CandleStickDrawer.theme.same
-        ctx.fillRect(x, y, width, 1 * resolution)
-      }
+      ctx.fillStyle = determineCandleColor(d, i, range) > 0 ?
+        CandleStickDrawer.theme.rise : CandleStickDrawer.theme.fall
+      ctx.fillRect(x, y, width, height)
       const lineWidth = 1 * resolution
       ctx.fillRect(x + width / 2 - lineWidth / 2, yScale(d.high), lineWidth, yScale(maxV) - yScale(d.high))
       ctx.fillRect(x + width / 2 - lineWidth / 2, yScale(minV), lineWidth, yScale(d.low) - yScale(minV))
