@@ -11,6 +11,8 @@ script:
   - npm run example
 after_success:
   - npm run coverage
+before_deploy:
+  - tar -czf ${TRAVIS_TAG}.tar.gz dist/finance-chart.*
 deploy:
   - provider: pages
     skip-cleanup: true
@@ -20,8 +22,7 @@ deploy:
       branch: master
   - provider: releases
     api_key: "$GITHUB_TOKEN"
-    file_glob: true
-    file: "dist/*"
+    file: "${TRAVIS_TAG}.tar.gz"
     skip_cleanup: true
     on:
       tags: true

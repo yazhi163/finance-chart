@@ -1,6 +1,6 @@
 {
   "name": "@gitpad/finance-chart",
-  "version": "0.7.6",
+  "version": "0.7.7",
   "description": "finance chart for dz-web",
   "main": "index.js",
   "types": "./dist/index.d.ts",
