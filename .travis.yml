@@ -27,7 +27,7 @@ deploy:
     on:
       tags: true
   - provider: npm
-    email: "827884374@qq.com"
+    email: $NPM_ACCOUNT
     api_key: $NPM_TOKEN
     skip_cleanup: true
     on:
