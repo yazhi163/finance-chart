@@ -5,12 +5,17 @@ cache: yarn
 before_install:
   - sudo apt-get -qq update
   - sudo apt-get install build-essential libcairo2-dev libpango1.0-dev libjpeg-dev libgif-dev librsvg2-dev
-after_success: npm run coverage
+script:
+  -- npm test
+  -- npm run dist
+  -- npm run example
+after_success:
+  -- npm run coverage
 deploy:
   provider: pages
   skip-cleanup: true
   github-token: $GITHUB_TOKEN  # Set in the settings page of your repository, as a secure variable
   keep-history: true
-  local-dir: ./example-dist
+  local-dir: example-dist
   on:
     branch: master
