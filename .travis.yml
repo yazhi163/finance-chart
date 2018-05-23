@@ -6,11 +6,11 @@ before_install:
   - sudo apt-get -qq update
   - sudo apt-get install build-essential libcairo2-dev libpango1.0-dev libjpeg-dev libgif-dev librsvg2-dev
 script:
-  -- npm test
-  -- npm run dist
-  -- npm run example
+  - npm test
+  - npm run dist
+  - npm run example
 after_success:
-  -- npm run coverage
+  - npm run coverage
 deploy:
   provider: pages
   skip-cleanup: true
