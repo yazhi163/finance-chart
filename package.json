@@ -1,7 +1,7 @@
 {
   "name": "@gitpad/finance-chart",
-  "version": "0.7.7",
-  "description": "finance chart for dz-web",
+  "version": "0.7.8",
+  "description": "finance chart",
   "main": "index.js",
   "types": "./dist/index.d.ts",
   "scripts": {
@@ -9,11 +9,8 @@
     "dist": "npm run clean && webpack --config ./dev/webpack.config.js",
     "example": "rimraf example-dist/ && webpack --config ./dev/webpack.example.js",
     "start": "node ./dev/serve.js",
-    "prepublishOnly": "npm run dist",
-    "pub": "npm publish --access public",
     "test": "node ./dev/jest/start.js",
     "test:coverage": "npm run test -- --coverage",
-    "ghpages": "git subtree push --prefix example-dist/ origin gh-pages",
     "coverage": "cat ./coverage/lcov.info | coveralls"
   },
   "publishConfig": {
@@ -26,9 +23,9 @@
   "author": "yeluoqiuzhi",
   "license": "LGPL",
   "bugs": {
-    "url": "https://github.com/dz-web/finance-chart/issues"
+    "url": "https://github.com/gitpadtech/finance-chart/issues"
   },
-  "homepage": "https://github.com/dz-web/finance-chart",
+  "homepage": "https://github.com/gitpadtech/finance-chart",
   "devDependencies": {
     "@types/jest": "^22.2.3",
     "autoprefixer": "^8.2.0",
