@@ -1,6 +1,6 @@
 {
   "name": "@gitpad/finance-chart",
-  "version": "0.7.4",
+  "version": "0.7.5",
   "description": "finance chart for dz-web",
   "main": "index.js",
   "types": "./dist/index.d.ts",
@@ -15,6 +15,9 @@
     "test:coverage": "npm run test -- --coverage",
     "ghpages": "git subtree push --prefix example-dist/ origin gh-pages",
     "coverage": "cat ./coverage/lcov.info | coveralls"
+  },
+  "publishConfig": {
+    "access": "public"
   },
   "repository": {
     "type": "git",

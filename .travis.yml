@@ -12,9 +12,21 @@ script:
 after_success:
   - npm run coverage
 deploy:
-  provider: pages
-  skip-cleanup: true
-  github-token: $GITHUB_TOKEN  # Set in the settings page of your repository, as a secure variable
-  local-dir: example-dist
-  on:
-    branch: master
+  - provider: pages
+    skip-cleanup: true
+    github-token: $GITHUB_TOKEN  # Set in the settings page of your repository, as a secure variable
+    local-dir: example-dist
+    on:
+      branch: master
+  - provider: releases
+    api_key: "$GITHUB_TOKEN"
+    file: "FILE TO UPLOAD"
+    skip_cleanup: true
+    on:
+      tags: true
+  - provider: npm
+    email: "827884374@qq.com"
+    api_key: $NPM_TOKEN
+    skip_cleanup: true
+    on:
+      tags: true
