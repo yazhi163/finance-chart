@@ -40,9 +40,9 @@ npm run dist
 
 ### donate
 
-微信赏块披萨, 支持开发
+微信赏块披萨, 支持开发
 
-![微信赞赏码](doc/images/qr-code.jpg)
+![微信赞赏码](doc/images/qr-code.jpg)
 
 
 ### Thanks to BrowserStack
