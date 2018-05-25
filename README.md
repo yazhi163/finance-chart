@@ -40,9 +40,9 @@ npm run dist
 
 ### donate
 
-赏块披萨, 支持开发
+微信赏块披萨, 支持开发
 
-[微信赞赏码](https://github.com/gitpadtech/finance-chart/issues/1)
+![微信赞赏码](doc/images/qr-code.jpg)
 
 
 ### Thanks to BrowserStack
