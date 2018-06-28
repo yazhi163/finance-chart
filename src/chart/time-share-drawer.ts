@@ -9,7 +9,7 @@ import { drawLine, drawXAxis, drawYAxis } from '../paint-utils/index';
 import { autoResetStyle, Chart, YAxisDetail } from './chart';
 import { ChartTitle } from './chart-title';
 import { TimeShareData } from './data-structure';
-import { Drawer } from './drawer';
+import { Drawer, DrawerOptions } from './drawer';
 
 export const TimeShareWhiteTheme = {
   price: '#4B99FB',
@@ -43,7 +43,7 @@ export const TimeShareBlackTheme = {
 export class TimeShareDrawer extends Drawer {
   public static theme = TimeShareWhiteTheme;
   public titleDrawer: ChartTitle;
-  protected range: MovableRange<TimeShareData>;
+  public range: MovableRange<TimeShareData>;
   protected topValue = ((lastTopValue = Number.MIN_VALUE) =>
     () => {
       if (this.maxValue > lastTopValue) {
@@ -60,8 +60,8 @@ export class TimeShareDrawer extends Drawer {
       return lastBottomValue;
     }
   )();
-  constructor(chart: Chart) {
-    super(chart);
+  constructor(chart: Chart, options: DrawerOptions) {
+    super(chart, options);
     this.xTickFormatter = this.xTickFormatter.bind(this);
     this.context = chart.context;
     this.titleDrawer = new ChartTitle(
@@ -99,15 +99,6 @@ export class TimeShareDrawer extends Drawer {
     }
     this.resetYScale();
   }
-  public draw() {
-    const { frame } = this;
-    this.drawAxes();
-    this.titleDrawer.draw({
-      ...frame,
-      height: this.titleHeight,
-    });
-    this.drawTimeShare();
-  }
   @autoResetStyle()
   public drawFrontSight() {
     const { context: ctx, yScale, range } = this;
@@ -138,6 +129,16 @@ export class TimeShareDrawer extends Drawer {
   }
   public getXAxisDetail(i: number): string {
     return this.xTickFormatter(i);
+  }
+  protected draw() {
+    super.draw();
+    const { frame } = this;
+    this.drawAxes();
+    this.titleDrawer.draw({
+      ...frame,
+      height: this.titleHeight,
+    });
+    this.drawTimeShare();
   }
   protected xTickFormatter(value: number, i?: number) {
     const d = new Date();

@@ -8,7 +8,6 @@ export interface CandleStickData extends VolumeData {
   close: number;
   high: number;
   low: number;
-  [key: string]: number|string;
 }
 
 export interface TimeShareData extends VolumeData {

@@ -6,16 +6,19 @@ import { divide } from '../algorithm/divide';
 import { MovableRange } from '../algorithm/range';
 import { Rect } from '../graphic/primitive';
 import { drawLine, drawXAxis, drawYAxis } from '../paint-utils/index';
-import { autoResetStyle, Chart, YAxisDetail } from './chart';
+import {
+  autoResetStyle,
+  Chart,
+  DrawerConfig,
+  YAxisDetail,
+} from './chart';
 import { ChartTitle } from './chart-title';
 import { CandleStickData } from './data-structure';
-import { Drawer } from './drawer';
+import { Drawer, DrawerOptions } from './drawer';
 
 export const CandleStickWhiteTheme = {
   rise: '#F55559',
   fall: '#7DCE8D',
-  titleBackground: '#F2F4F4',
-  title: '#5E667F',
   gridLine: '#E7EAEB',
   yTick: '#5E667F',
   xTick: '#5E667F',
@@ -24,41 +27,21 @@ export const CandleStickWhiteTheme = {
 export const CandleStickBlackTheme = {
   rise: '#F55559',
   fall: '#7DCE8D',
-  titleBackground: '#22252B',
-  title: '#AEB4BE',
   gridLine: '#282D38',
   yTick: '#AEB4BE',
   xTick: '#AEB4BE',
 };
 
-export interface MAIndicator {
-  key: string;
-  color: string;
-}
-
 export class CandleStickDrawer extends Drawer {
   public static theme = CandleStickWhiteTheme;
-  public static MAIndicators: MAIndicator[] = [];
 
-  public titleDrawer: ChartTitle;
-  protected range: MovableRange<CandleStickData>;
+  public range: MovableRange<CandleStickData>;
   private _count: number;
-  constructor(chart: Chart, data: CandleStickData[] = []) {
-    super(chart);
+  constructor(chart: Chart, options: DrawerOptions) {
+    super(chart, options);
     this._count = chart.options.count;
     this.xTickFormatter = this.xTickFormatter.bind(this);
     this.context = chart.context;
-    this.titleDrawer = new ChartTitle(
-      this.context,
-      'MA', this.MAIndicators.map(({key, color}, i) => ({
-        x: i * 80 + 60,
-        label: `${key.toUpperCase()}: 0`,
-        color,
-      })),
-      CandleStickDrawer.theme.titleBackground,
-      CandleStickDrawer.theme.title,
-      this.chart.options.resolution,
-    );
   }
   public count() {
     return this._count;
@@ -67,13 +50,12 @@ export class CandleStickDrawer extends Drawer {
     super.setRange(range);
     const data = range.visible();
     if (data.length > 0) {
-      const keys = this.MAIndicators.map((d) => d.key);
-      keys.push('low', 'high');
+      const keys: Array<'low'|'high'> = ['low', 'high'];
       let minV = Number.MAX_VALUE;
       let maxV = Number.MIN_VALUE;
       for (let i = 0, lenI = data.length; i < lenI; ++i) {
         keys.forEach((key) => {
-          const v = data[i][key] as number;
+          const v = data[i][key];
           // ma data may be null, ignore it
           if (v === null) { return; }
           if (v < minV) {
@@ -95,12 +77,6 @@ export class CandleStickDrawer extends Drawer {
     super.resize(frame);
     this.resetYScale();
   }
-  public draw() {
-    this.drawTitle(this.selectedIndex || this.range.visible().length - 1);
-    this.drawAxes();
-    this.drawCandles();
-    this.drawMA();
-  }
   public getYAxisDetail(y: number): YAxisDetail {
     return {
       left: this.yScale.invert(y).toFixed(2),
@@ -109,8 +85,10 @@ export class CandleStickDrawer extends Drawer {
   public getXAxisDetail(i: number): string {
     return this.xTickDetailFormatter(i, this.range.visible());
   }
-  get MAIndicators() {
-    return Object.getPrototypeOf(this).constructor.MAIndicators as MAIndicator[];
+  protected draw() {
+    super.draw();
+    this.drawAxes();
+    this.drawCandles();
   }
   protected drawYAxis() {
     drawYAxis(
@@ -164,22 +142,6 @@ export class CandleStickDrawer extends Drawer {
     this.drawXAxis();
     this.drawYAxis();
   }
-  protected drawMA() {
-    const { yScale, range } = this;
-    const { xScale } = this.chart;
-    this.MAIndicators.forEach(({key, color}) => {
-      const trimed = trimNulls(range.visible().map((d) => d[key] as number));
-      drawLine(
-        this.context,
-        trimed.result.map((d, i) => ({
-          x: xScale(i + trimed.deleted),
-          y: yScale(d),
-        })),
-        color,
-        1 * this.chart.options.resolution,
-      );
-    });
-  }
   @autoResetStyle()
   protected drawCandles() {
     const { xScale } = this.chart;
@@ -202,21 +164,5 @@ export class CandleStickDrawer extends Drawer {
       ctx.fillRect(x + width / 2 - lineWidth / 2, yScale(d.high), lineWidth, yScale(maxV) - yScale(d.high));
       ctx.fillRect(x + width / 2 - lineWidth / 2, yScale(minV), lineWidth, yScale(d.low) - yScale(minV));
     });
-  }
-  private drawTitle(i: number) {
-    const { context: ctx, frame, range } = this;
-    const data = range.visible();
-    const d = data[i];
-    if (data.length > 0) {
-      this.MAIndicators.forEach(({ key }, i) => {
-        const m = ((d[key] as number) || 0).toFixed(2);
-        this.titleDrawer.setLabel(i, `${key.toUpperCase()}: ${m}`);
-      });
-      ctx.clearRect(0, frame.y, frame.width, this.titleHeight);
-      this.titleDrawer.draw({
-        ...this.frame,
-        height: this.titleHeight,
-      });
-    }
   }
 }

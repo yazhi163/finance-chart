@@ -1,29 +1,29 @@
-import './index.scss'
+import { formateDate } from '../../src/algorithm/date';
 import {
-  TimeShareDrawer,
-  TimeShareBlackTheme,
-  CandleStickDrawer,
   CandleStickBlackTheme,
+  CandleStickDrawer,
+  CandleStickVolumeDrawer,
   Chart,
   ChartBlackTheme,
-  VolumeDrawer,
-  VolumeBlackTheme,
-  CandleStickVolumeDrawer,
+  createMaPlugin,
+  TimeShareBlackTheme,
+  TimeShareDrawer,
   TimeShareVolumeDrawer,
-} from '../../src/index'
-import { formateDate } from '../../src/algorithm/date';
-import MOCK_TIME_SHARE from './mock-time-share';
+  VolumeBlackTheme,
+  VolumeDrawer,
+} from '../../src/index';
+import './index.scss';
 import MOCK_KLINE from './mock-kline';
+import MOCK_TIME_SHARE from './mock-time-share';
 
 // configure your theme
-Chart.theme = ChartBlackTheme
-TimeShareDrawer.theme = TimeShareBlackTheme
-CandleStickDrawer.theme = CandleStickBlackTheme
-VolumeDrawer.theme = VolumeBlackTheme
+Chart.theme = ChartBlackTheme;
+TimeShareDrawer.theme = TimeShareBlackTheme;
+CandleStickDrawer.theme = CandleStickBlackTheme;
+VolumeDrawer.theme = VolumeBlackTheme;
 
-
-VolumeDrawer.proportion = 100
-VolumeDrawer.unit = '手'
+VolumeDrawer.proportion = 100;
+VolumeDrawer.unit = '手';
 
 function createTimeShare() {
   const timeShareChart = new Chart({
@@ -34,71 +34,60 @@ function createTimeShare() {
     data: MOCK_TIME_SHARE,
     tradeTimes: [
       {
-          "open": 90,
-          "close": 210
+          open: 90,
+          close: 210,
       },
       {
-          "open": 300,
-          "close": 421
-      }
+          open: 300,
+          close: 421,
+      },
     ],
-    mainDrawer: TimeShareDrawer,
+    mainDrawer: {
+      constructor: TimeShareDrawer,
+    },
     auxiliaryDrawers: [
-      TimeShareVolumeDrawer
+      {
+        constructor: TimeShareVolumeDrawer,
+      },
     ],
     detailProvider: (i, data) => {
-      const date = new Date()
-      date.setTime(data[i].time * 60 * 1000)
+      const date = new Date();
+      date.setTime(data[i].time * 60 * 1000);
       return {
         title: formateDate(date, 'HH:mm'),
         tables: [
           {
             color: 'green',
             name: '开盘',
-            value: '10353'
+            value: '10353',
           },
           {
             color: '#7B7E8D',
             name: '开盘',
-            value: '10353'
-          }
-        ]
-      }
-    }
-  })
+            value: '10353',
+          },
+        ],
+      };
+    },
+  });
   function autoUpdateTimeShare() {
     if (MOCK_TIME_SHARE.length < 240 - 1) {
-      setTimeout(autoUpdateTimeShare, 500)
+      setTimeout(autoUpdateTimeShare, 500);
     }
-    const last = MOCK_TIME_SHARE[MOCK_TIME_SHARE.length - 1]
+    const last = MOCK_TIME_SHARE[MOCK_TIME_SHARE.length - 1];
     const next = {
       time: last.time + 1,
       price: last.price * (Math.random() * 0.02 - 0.01 + 1),
       avg: last.avg * (Math.random() * 0.02 - 0.01 + 1),
       volume: Math.round(last.volume * (Math.random() * 0.6 - 0.3 + 1)),
       holdAmount: Math.round(last.holdAmount * (Math.random() * 0.6 - 0.3 + 1)),
-    }
-    MOCK_TIME_SHARE.push(next)
-    timeShareChart.setData(MOCK_TIME_SHARE)
+    };
+    MOCK_TIME_SHARE.push(next);
+    timeShareChart.setData(MOCK_TIME_SHARE);
   }
-  autoUpdateTimeShare()
+  autoUpdateTimeShare();
 }
-
 function createKLine() {
-  CandleStickDrawer.MAIndicators = [
-    {
-      key: 'ma5',
-      color: '#FF8E29'
-    },
-    {
-      key: 'ma10',
-      color: '#ADE3F3'
-    },
-    {
-      key: 'ma20',
-      color: '#EC6ED9'
-    }
-  ]
   new Chart({
     selector: '#candle-stick',
     resolution: (window.devicePixelRatio || 1),
@@ -106,9 +95,39 @@ function createKLine() {
     lastPrice: 50.49999809265137,
     data: MOCK_KLINE,
     tradeTimes: [],
-    mainDrawer: CandleStickDrawer,
+    mainDrawer: {
+      constructor: CandleStickDrawer,
+      options: {
+        plugins: [],
+        exclusivePlugins: [
+          createMaPlugin([
+            {
+              key: 5,
+              color: '#FF8E29',
+            },
+            {
+              key: 10,
+              color: '#ADE3F3',
+            },
+            {
+              key: 20,
+              color: '#EC6ED9',
+            },
+          ], {
+            /* black theme */
+            background: '#22252B',
+            title: '#AEB4BE',
+            /* white theme */
+            // titleBackground: '#F2F4F4',
+            // title: '#5E667F',
+          }),
+        ],
+      },
+    },
     auxiliaryDrawers: [
-      CandleStickVolumeDrawer
+      {
+        constructor: CandleStickVolumeDrawer,
+      },
     ],
     detailProvider: (i, data) => {
       const WEEK_DAY_MAP: { [index: number]: string} = {
@@ -118,26 +137,26 @@ function createKLine() {
         3: '周三',
         4: '周四',
         5: '周五',
-        6: '周六'
-      }
-      const date = new Date(data[i].time.replace(/-/g, '/'))
+        6: '周六',
+      };
+      const date = new Date(data[i].time.replace(/-/g, '/'));
       return {
         title: `${formateDate(date, 'yyyy/MM/dd')} ${WEEK_DAY_MAP[date.getDay()]}`,
         tables: [
           {
             color: 'green',
             name: '开盘',
-            value: '10353'
+            value: '10353',
           },
           {
             color: '#7B7E8D',
             name: '开盘',
-            value: '10353'
-          }
-        ]
-      }
-    }
-  })
+            value: '10353',
+          },
+        ],
+      };
+    },
+  });
 }
-createTimeShare()
-createKLine()
+createTimeShare();
+createKLine();

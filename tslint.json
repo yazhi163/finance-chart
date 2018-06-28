@@ -12,7 +12,8 @@
         "no-unused-expression": false,
         "max-classes-per-file": false,
         "variable-name": false,
-        "no-shadowed-variable": false
+        "no-shadowed-variable": false,
+        "no-console": false
     },
     "rulesDirectory": []
 }

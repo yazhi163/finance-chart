@@ -15,15 +15,21 @@ import {
 } from '../constants/constants';
 import { Point, Rect } from '../graphic/primitive';
 import './chart.scss';
-import { Drawer } from './drawer';
-
-export interface DrawerContructor {
-  new (chart: Chart, data: any[]): Drawer;
-}
+import {
+  Drawer,
+  DrawerContructor,
+  DrawerOptions,
+  DrawerPluginConstructor,
+} from './drawer';
 
 export interface YAxisDetail {
   left: string;
   right?: string;
+}
+
+export interface DrawerConfig {
+  constructor: DrawerContructor;
+  options?: DrawerOptions;
 }
 
 export interface ChartOptions {
@@ -34,11 +40,11 @@ export interface ChartOptions {
   lastPrice: number;
   data: any[];
   tradeTimes: TradeTimeSegment[];
-  mainDrawer?: DrawerContructor;
+  mainDrawer: DrawerConfig;
   resolution?: number;
   count?: number;
   mainRatio?: number;
-  auxiliaryDrawers?: DrawerContructor[];
+  auxiliaryDrawers?: DrawerConfig[];
   detailProvider?:
     (selectedIndex: number, data: any[]) => {
       title: string;
@@ -255,9 +261,12 @@ export class Chart {
         // }
         this.context.fillStyle = Chart.theme.background;
         this.context.fillRect(0, 0, this.width, this.height);
-        this.mainDrawer && this.mainDrawer.draw();
+        this.mainDrawer && this.mainDrawer.update();
+
+        this.context.clearRect(0, this.auxiliaryChartY, this.width, this.auxiliaryChartHeight);
+
         this.auxiliaryDrawer[this.selectedAuxiliaryDrawer] &&
-          this.auxiliaryDrawer[this.selectedAuxiliaryDrawer].draw();
+          this.auxiliaryDrawer[this.selectedAuxiliaryDrawer].update();
         this.requestAnimationFrameId = null;
         if (this.interactive & InteractiveState.ShowDetail) {
           this.drawFrontSight();
@@ -319,10 +328,10 @@ export class Chart {
   private createDrawer() {
     const { options } = this;
     if (options.mainDrawer) {
-      this.mainDrawer = new options.mainDrawer(this, this.data);
+      this.mainDrawer = new options.mainDrawer.constructor(this, options.mainDrawer.options);
     }
     options.auxiliaryDrawers.forEach((drawer) => {
-      this.auxiliaryDrawer.push(new drawer(this, this.data));
+      this.auxiliaryDrawer.push(new drawer.constructor(this, drawer.options));
     });
     this.movableRange.setVisibleLength(this.count());
     this.resize();

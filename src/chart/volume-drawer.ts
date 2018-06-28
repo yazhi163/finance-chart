@@ -10,7 +10,7 @@ import { drawXAxis, drawYAxis } from '../paint-utils/index';
 import { autoResetStyle, Chart, YAxisDetail } from './chart';
 import { ChartTitle } from './chart-title';
 import { CandleStickData, TimeShareData, VolumeData } from './data-structure';
-import { Drawer } from './drawer';
+import { Drawer, DrawerOptions } from './drawer';
 
 export const VolumeWhiteTheme = {
   rise: '#F55559',
@@ -55,9 +55,9 @@ export class VolumeDrawer extends Drawer {
   public static proportion = 100;
   public static unit = '手';
   public titleDrawer: ChartTitle;
-  protected range: MovableRange<VolumeData>;
-  constructor(chart: Chart) {
-    super(chart);
+  public range: MovableRange<VolumeData>;
+  constructor(chart: Chart, options: DrawerOptions) {
+    super(chart, options);
     this.xAxisTickHeight = 0;
     this.context = chart.context;
     this.titleDrawer = new ChartTitle(
@@ -81,12 +81,6 @@ export class VolumeDrawer extends Drawer {
     super.resize(frame);
     this.resetYScale();
   }
-  public draw() {
-    const data = this.range.visible();
-    this.drawAxes();
-    this.drawTitle(this.selectedIndex || data.length - 1);
-    this.drawVolumes();
-  }
   public setRange(range: MovableRange<VolumeData>) {
     super.setRange(range);
     const data = this.range.visible();
@@ -101,6 +95,12 @@ export class VolumeDrawer extends Drawer {
     return {
       left: shortenVolume(this.yScale.invert(y)),
     };
+  }
+  protected draw() {
+    const data = this.range.visible();
+    this.drawAxes();
+    this.drawTitle(this.selectedIndex || data.length - 1);
+    this.drawVolumes();
   }
   protected drawXAxis() {
     const tickValues = divide(0, this.chart.count() - 1, 5);
@@ -196,7 +196,7 @@ export class TimeShareVolumeDrawer extends VolumeDrawer {
   }
 }
 export class CandleStickVolumeDrawer extends VolumeDrawer {
-  protected range: MovableRange<CandleStickData>;
+  public range: MovableRange<CandleStickData>;
   public calcDeltaPrice(currentValue: CandleStickData, currentIndex: number): number {
     const range = this.range;
     return determineCandleColor(currentValue, currentIndex, range);

@@ -10,3 +10,7 @@ export * from './chart/candle-stick-drawer';
 export * from './algorithm/date';
 export * from './algorithm/tradetime';
 export * from './chart/data-structure';
+
+/* export all plugins */
+
+export * from './plugins/ma-plugin';

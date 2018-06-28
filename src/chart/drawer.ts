@@ -5,25 +5,42 @@ import { Rect } from '../graphic/primitive';
 import { TradeTime } from '../index';
 import { Chart, YAxisDetail } from './chart';
 
+export interface DrawerOptions {
+    plugins: DrawerPluginConstructor[];
+    exclusivePlugins: ExclusiveDrawerPluginConstructor[];
+}
+
 export class Drawer {
+  public plugins: DrawerPlugin[] = [];
+  public exclusivePlugins: ExclusiveDrawerPlugin[] = [];
   public context: CanvasRenderingContext2D;
   public frame: Rect = { x: 0, y: 0, width: 0, height: 0};
   public chartFrame: Rect = { x: 0, y: 0, width: 0, height: 0};
-  protected range: MovableRange<object>;
-  protected selectedIndex: number;
-  protected minValue = 0;
-  protected maxValue = 0;
-  protected yScale: ScaleLinear<number, number>;
-  protected tradeTime: TradeTime;
+  public yScale: ScaleLinear<number, number>;
+  public range: MovableRange<object>;
+  public selectedIndex: number;
+  public minValue = 0;
+  public maxValue = 0;
+  public tradeTime: TradeTime;
+  protected selectedExclusivePlugin = 0;
   private _xAxisTickHeight = X_AXIS_HEIGHT;
-  constructor(public chart: Chart) {
+  constructor(
+    public chart: Chart,
+    protected options: DrawerOptions = {
+      plugins: [],
+      exclusivePlugins: [],
+    }) {
     this.context = chart.context;
     this.selectedIndex = null;
     this.tradeTime = new TradeTime(chart.options.tradeTimes);
     this.setRange(chart.movableRange);
+    this.installPlugin();
   }
-  public draw() {
+  public update() {
     // implement nothing
+    this.predraw();
+    this.draw();
+    this.postdraw();
   }
   public drawFrontSight() {
     // implement nothing
@@ -57,7 +74,16 @@ export class Drawer {
   public count(): number {
     return 0;
   }
-  protected get titleHeight() {
+  protected predraw() {
+    this.pluginCall('predraw');
+  }
+  protected draw() {
+    this.pluginCall('draw');
+  }
+  protected postdraw() {
+    this.pluginCall('postdraw');
+  }
+  public get titleHeight() {
     return TITLE_HEIGHT * this.chart.options.resolution;
   }
   protected set xAxisTickHeight(value) {
@@ -79,4 +105,45 @@ export class Drawer {
       .domain([this.bottomValue(), this.topValue()])
       .range([chartFrame.y + chartFrame.height, chartFrame.y + TITLE_MARGIN_BOTTOM * resolution]);
   }
+  private installPlugin() {
+    this.options.plugins.forEach((Plugin) => {
+      this.plugins.push(new Plugin(this));
+    });
+    this.options.exclusivePlugins.forEach((Plugin) => {
+      this.exclusivePlugins.push(new Plugin(this));
+    });
+  }
+  private pluginCall<
+    T extends keyof DrawerPlugin,
+    U extends keyof ExclusiveDrawerPlugin
+  >(fnName: T, ...args: any[]) {
+    this.plugins.forEach((plugin) =>
+      (plugin[fnName] as () => void)
+        .apply(plugin, args));
+    const exp = this.exclusivePlugins[this.selectedExclusivePlugin];
+    exp && (exp[fnName] as () => void).apply(exp, args);
+  }
 }
+export type DrawerContructor = typeof Drawer;
+
+export class DrawerPlugin {
+  protected frame: Rect;
+  protected chartFrame: Rect;
+  constructor(protected pluginHost: Drawer) {
+    this.frame = pluginHost.frame;
+    this.chartFrame = pluginHost.chartFrame;
+  }
+  public predraw() {
+    // implement nothing
+  }
+  public draw() {
+    // implement nothing
+  }
+  public postdraw() {
+    // implement nothing
+  }
+}
+export class ExclusiveDrawerPlugin extends DrawerPlugin {}
+
+export type DrawerPluginConstructor = typeof DrawerPlugin;
+export type ExclusiveDrawerPluginConstructor = typeof ExclusiveDrawerPlugin;

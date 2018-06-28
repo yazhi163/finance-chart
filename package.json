@@ -12,7 +12,7 @@
     "test": "node ./dev/jest/start.js",
     "test:coverage": "npm run test -- --coverage",
     "coverage": "cat ./coverage/lcov.info | coveralls",
-    "tslint": "tslint -c tslint.json 'src/**/*.ts'"
+    "tslint": "tslint -c tslint.json 'example/**/*.ts' 'src/**/*.ts'"
   },
   "publishConfig": {
     "access": "public"
