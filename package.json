@@ -11,7 +11,8 @@
     "start": "node ./dev/serve.js",
     "test": "node ./dev/jest/start.js",
     "test:coverage": "npm run test -- --coverage",
-    "coverage": "cat ./coverage/lcov.info | coveralls"
+    "coverage": "cat ./coverage/lcov.info | coveralls",
+    "tslint": "tslint -c tslint.json 'src/**/*.ts'"
   },
   "publishConfig": {
     "access": "public"
@@ -50,6 +51,7 @@
     "style-loader": "^0.20.3",
     "ts-jest": "^22.4.4",
     "ts-loader": "^4.2.0",
+    "tslint": "^5.10.0",
     "typescript": "^2.8.3",
     "webpack": "^4.5.0",
     "webpack-cli": "^2.0.14",

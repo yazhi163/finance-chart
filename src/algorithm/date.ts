@@ -1,11 +1,11 @@
 export function formateDate(date: Date | number | string, format: string) {
-  let d: Date
+  let d: Date;
   if (typeof date === 'number') {
-    d = new Date(date)
+    d = new Date(date);
   } else if (typeof date === 'string') {
-    d = new Date(date.replace(/-/g, '/'))
+    d = new Date(date.replace(/-/g, '/'));
   } else {
-    d = date
+    d = date;
   }
   const dict: { [key: string]: string | number} = {
     yyyy: d.getFullYear(),
@@ -20,5 +20,5 @@ export function formateDate(date: Date | number | string, format: string) {
     mm: (`${d.getMinutes() + 100}`).substr(1),
     ss: (`${d.getSeconds() + 100}`).substr(1),
   };
-  return format.replace(/(yyyy|MM?|dd?|HH?|mm?|ss?)/g, key => dict[key] as string)
+  return format.replace(/(yyyy|MM?|dd?|HH?|mm?|ss?)/g, (key) => dict[key] as string);
 }

@@ -1,49 +1,49 @@
 import clamp from 'lodash.clamp';
 
 export class MovableRange<T> {
-  endPosition: number
-  visibleLength: number
+  public endPosition: number;
+  public visibleLength: number;
   constructor(
     public data: T[],
-    length: number
+    length: number,
   ) {
-    this.endPosition = this.data.length
-    this.visibleLength = length
+    this.endPosition = this.data.length;
+    this.visibleLength = length;
   }
-  setData(data: T[]) {
-    const minPosition = this.visibleLength > data.length ? data.length : this.visibleLength
+  public setData(data: T[]) {
+    const minPosition = this.visibleLength > data.length ? data.length : this.visibleLength;
     this.endPosition = clamp(
       data.length - (this.data.length - this.endPosition),
       minPosition,
-      data.length
-    )
-    this.data = data
+      data.length,
+    );
+    this.data = data;
   }
-  setVisibleLength(length: number) {
-    this.visibleLength = length
-    const minPosition = length > this.data.length ? this.data.length : length
-    this.endPosition = clamp(this.endPosition, minPosition, this.data.length)
+  public setVisibleLength(length: number) {
+    this.visibleLength = length;
+    const minPosition = length > this.data.length ? this.data.length : length;
+    this.endPosition = clamp(this.endPosition, minPosition, this.data.length);
   }
-  visible() {
+  public visible() {
     return this.data.slice(
       this.visibleStartIndex(),
-      this.endPosition
-    )
+      this.endPosition,
+    );
   }
-  visibleStartIndex() {
-    return clamp(this.endPosition - this.visibleLength, 0, this.data.length)
+  public visibleStartIndex() {
+    return clamp(this.endPosition - this.visibleLength, 0, this.data.length);
   }
   /**
    * move visible range
    * @param step move step
    * @returns return true when visibleRange moved
    */
-  move(step: number): boolean {
+  public move(step: number): boolean {
     const minPosition = this.visibleLength > this.data.length ?
-      this.data.length : this.visibleLength
-    const pos = clamp(this.endPosition + step, minPosition, this.data.length)
-    const moved = this.endPosition !== pos
-    this.endPosition = pos
-    return moved
+      this.data.length : this.visibleLength;
+    const pos = clamp(this.endPosition + step, minPosition, this.data.length);
+    const moved = this.endPosition !== pos;
+    this.endPosition = pos;
+    return moved;
   }
 }
