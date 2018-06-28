@@ -1,5 +1,5 @@
 export interface VolumeData {
-  volume: number
+  volume: number;
 }
 
 export interface CandleStickData extends VolumeData {
@@ -8,7 +8,7 @@ export interface CandleStickData extends VolumeData {
   close: number;
   high: number;
   low: number;
-  [key: string]: number|string
+  [key: string]: number|string;
 }
 
 export interface TimeShareData extends VolumeData {
