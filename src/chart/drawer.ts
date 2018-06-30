@@ -1,4 +1,5 @@
 import { ScaleLinear, scaleLinear } from 'd3-scale';
+import clamp from 'lodash.clamp';
 import { MovableRange } from '../algorithm/range';
 import { TITLE_HEIGHT, TITLE_MARGIN_BOTTOM, X_AXIS_HEIGHT } from '../constants/constants';
 import { Rect } from '../graphic/primitive';
@@ -73,6 +74,13 @@ export class Drawer {
   }
   public count(): number {
     return 0;
+  }
+  public nextExclusivePlugin() {
+    const pluginsCount = this.exclusivePlugins.length;
+    if (pluginsCount === 0) {
+      throw Error(`expect exclusive plugin exist, but only 0 plugin`);
+    }
+    this.selectedExclusivePlugin = clamp(this.selectedExclusivePlugin + 1, 0, pluginsCount - 1);
   }
   protected predraw() {
     this.pluginCall('predraw');

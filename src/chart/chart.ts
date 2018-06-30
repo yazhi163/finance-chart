@@ -281,9 +281,12 @@ export class Chart {
   public destroy() {
     this.destroyed = true;
     window.removeEventListener('resize', this.resize);
+    this.canvas.removeEventListener('contextmenu', this.onContextMenu);
     this.canvas.removeEventListener('mouseenter', this.onMouseEnter);
     this.canvas.removeEventListener('mousemove', this.onMouseEnter);
     this.canvas.removeEventListener('mouseleave', this.onMouseEnter);
+    this.canvas.removeEventListener('mousedown', this.onMouseDown);
+    this.canvas.removeEventListener('mouseup', this.onMouseUp);
     this.canvas.removeEventListener('touchstart', this.onTouchStart);
     this.canvas.removeEventListener('touchmove', this.onTouchMove);
     this.canvas.removeEventListener('touchend', this.onTouchEnd);
@@ -294,6 +297,10 @@ export class Chart {
     this.detailElement && this.rootElement.removeChild(this.detailElement);
 
     this.destroyDrawer();
+  }
+  @shouldRedraw()
+  public nextMainExclusivePlugin() {
+    this.mainDrawer.nextExclusivePlugin();
   }
   get data() {
     return this.movableRange.visible();
@@ -446,7 +453,7 @@ export class Chart {
     this.detailElement.style.color = Chart.theme.detailColor;
     this.detailElement.className = 'chart-detail';
     this.rootElement.appendChild(this.detailElement);
-    canvas.addEventListener('contextmenu', (e) => e.preventDefault());
+    canvas.addEventListener('contextmenu', this.onContextMenu);
     // will be 'hybrid' on android system
     if (detectIt.deviceType === 'mouseOnly') {
       canvas.addEventListener('mouseenter', this.onMouseEnter);
@@ -517,6 +524,9 @@ export class Chart {
   }
   private onMouseUp(e: MouseEvent) {
     this.interactive &= ~InteractiveState.Dragging;
+  }
+  private onContextMenu(e: PointerEvent) {
+    e.preventDefault();
   }
   private onMouseEnter(e: MouseEvent) {
     const rect = (e.target as HTMLElement).getBoundingClientRect();

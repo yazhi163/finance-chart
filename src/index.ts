@@ -13,4 +13,6 @@ export * from './chart/data-structure';
 
 /* export all plugins */
 
+export * from './plugins/line-indicator-plugin';
 export * from './plugins/ma-plugin';
+export * from './plugins/boll-plugin';

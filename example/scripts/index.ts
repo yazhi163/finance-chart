@@ -5,7 +5,8 @@ import {
   CandleStickVolumeDrawer,
   Chart,
   ChartBlackTheme,
-  createMaPlugin,
+  createBOLLPlugin,
+  createMAPlugin,
   TimeShareBlackTheme,
   TimeShareDrawer,
   TimeShareVolumeDrawer,
@@ -88,6 +89,14 @@ function createTimeShare() {
   autoUpdateTimeShare();
 }
 function createKLine() {
+  const theme = {
+    /* black theme */
+    background: '#22252B',
+    title: '#AEB4BE',
+    /* white theme */
+    // titleBackground: '#F2F4F4',
+    // title: '#5E667F',
+  };
   new Chart({
     selector: '#candle-stick',
     resolution: (window.devicePixelRatio || 1),
@@ -100,27 +109,38 @@ function createKLine() {
       options: {
         plugins: [],
         exclusivePlugins: [
-          createMaPlugin([
+          createMAPlugin([
             {
-              key: 5,
+              key: '5',
               color: '#FF8E29',
             },
             {
-              key: 10,
+              key: '10',
               color: '#ADE3F3',
             },
             {
-              key: 20,
+              key: '20',
               color: '#EC6ED9',
             },
-          ], {
-            /* black theme */
-            background: '#22252B',
-            title: '#AEB4BE',
-            /* white theme */
-            // titleBackground: '#F2F4F4',
-            // title: '#5E667F',
-          }),
+            {
+              key: '60',
+              color: '#01F46A',
+            },
+          ], theme),
+          createBOLLPlugin([
+            {
+              key: 'mid',
+              color: '#FF8E29',
+            },
+            {
+              key: 'upper',
+              color: '#ADE3F3',
+            },
+            {
+              key: 'lower',
+              color: '#EC6ED9',
+            },
+          ], theme),
         ],
       },
     },
