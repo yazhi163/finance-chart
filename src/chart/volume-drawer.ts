@@ -7,30 +7,24 @@ import { MovableRange } from '../algorithm/range';
 import { TITLE_MARGIN_BOTTOM } from '../constants/constants';
 import { Rect } from '../graphic/primitive';
 import { drawXAxis, drawYAxis } from '../paint-utils/index';
-import { autoResetStyle, Chart, YAxisDetail } from './chart';
+import { autoResetStyle, Chart, ChartTheme, YAxisDetail } from './chart';
 import { ChartTitle } from './chart-title';
 import { CandleStickData, TimeShareData, VolumeData } from './data-structure';
 import { Drawer, DrawerOptions } from './drawer';
 
+export interface VolumeTheme extends ChartTheme {
+  volume: {
+    same: string;
+    volumeText: string;
+  };
+}
 export const VolumeWhiteTheme = {
-  rise: '#F55559',
-  fall: '#7DCE8D',
   same: '#5E6572',
   volumeText: '#F78081',
-  titleBackground: '#F2F4F4',
-  title: '#5E667F',
-  gridLine: '#E7EAEB',
-  yTick: '#5E667F',
 };
 export const VolumeBlackTheme = {
-  rise: '#F55559',
-  fall: '#7DCE8D',
   same: '#5E6572',
   volumeText: '#F78081',
-  titleBackground: '#22252B',
-  title: '#AEB4BE',
-  gridLine: '#282D38',
-  yTick: '#AEB4BE',
 };
 
 const shortenVolume = (v: number) => {
@@ -51,13 +45,16 @@ const volumeLabel = (v: number) => {
  * Volume chart drawer
  */
 export class VolumeDrawer extends Drawer {
-  public static theme = VolumeWhiteTheme;
   public static proportion = 100;
   public static unit = '手';
+  public theme: VolumeTheme;
   public titleDrawer: ChartTitle;
   public range: MovableRange<VolumeData>;
   constructor(chart: Chart, options: DrawerOptions) {
     super(chart, options);
+    this.theme = Object.assign({
+      volume: VolumeBlackTheme,
+    }, this.chart.theme);
     this.xAxisTickHeight = 0;
     this.context = chart.context;
     this.titleDrawer = new ChartTitle(
@@ -66,11 +63,11 @@ export class VolumeDrawer extends Drawer {
         {
           x: 60,
           label: volumeLabel(0),
-          color: VolumeDrawer.theme.volumeText,
+          color: this.theme.volume.volumeText,
         },
       ],
-      VolumeDrawer.theme.titleBackground,
-      VolumeDrawer.theme.title,
+      this.theme.titleBackground,
+      this.theme.title,
       this.chart.options.resolution,
     );
   }
@@ -111,7 +108,7 @@ export class VolumeDrawer extends Drawer {
       this.chart.xScale,
       this.chart.options.resolution,
       false,
-      VolumeDrawer.theme.gridLine,
+      this.theme.gridLine,
     );
   }
   protected drawAxes() {
@@ -121,7 +118,7 @@ export class VolumeDrawer extends Drawer {
   protected drawYAxis() {
     const tickValues = uniq(
       divide(0, this.maxValue, 3))
-        .map((n) => ({ value: Math.round(n), color: VolumeDrawer.theme.yTick }),
+        .map((n) => ({ value: Math.round(n), color: this.theme.yTick }),
     );
     tickValues.shift(); // remove first item, 0 volume
     const maxTickValue =
@@ -134,7 +131,7 @@ export class VolumeDrawer extends Drawer {
       this.yScale,
       this.chart.options.resolution,
       true,
-      VolumeDrawer.theme.gridLine,
+      this.theme.gridLine,
       (v, i) => {
         // const scaledV = v / VolumeDrawer.proportion
         let r = shortenVolume(v);
@@ -154,11 +151,11 @@ export class VolumeDrawer extends Drawer {
     data.forEach((d, i) => {
       const deltaPrice = this.calcDeltaPrice(d, i, data);
       if (deltaPrice > 0) {
-        ctx.fillStyle = VolumeDrawer.theme.rise;
+        ctx.fillStyle = this.theme.rise;
       } else if (deltaPrice < 0) {
-        ctx.fillStyle = VolumeDrawer.theme.fall;
+        ctx.fillStyle = this.theme.fall;
       } else {
-        ctx.fillStyle = VolumeDrawer.theme.same;
+        ctx.fillStyle = this.theme.volume.same;
       }
       const x = xScale(i);
       const y = yScale(d.volume);

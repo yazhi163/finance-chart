@@ -1,6 +1,5 @@
 import { formateDate } from '../../src/algorithm/date';
 import {
-  CandleStickBlackTheme,
   CandleStickDrawer,
   CandleStickVolumeDrawer,
   Chart,
@@ -8,6 +7,8 @@ import {
   createBOLLPlugin,
   createEMAPlugin,
   createMAPlugin,
+  createSARPlugin,
+  createSMAPlugin,
   TimeShareBlackTheme,
   TimeShareDrawer,
   TimeShareVolumeDrawer,
@@ -17,12 +18,6 @@ import {
 import './index.scss';
 import MOCK_KLINE from './mock-kline';
 import MOCK_TIME_SHARE from './mock-time-share';
-
-// configure your theme
-Chart.theme = ChartBlackTheme;
-TimeShareDrawer.theme = TimeShareBlackTheme;
-CandleStickDrawer.theme = CandleStickBlackTheme;
-VolumeDrawer.theme = VolumeBlackTheme;
 
 VolumeDrawer.proportion = 100;
 VolumeDrawer.unit = '手';
@@ -90,14 +85,6 @@ function createTimeShare() {
   autoUpdateTimeShare();
 }
 function createKLine() {
-  const theme = {
-    /* black theme */
-    background: '#22252B',
-    title: '#AEB4BE',
-    /* white theme */
-    // titleBackground: '#F2F4F4',
-    // title: '#5E667F',
-  };
   new Chart({
     selector: '#candle-stick',
     resolution: (window.devicePixelRatio || 1),
@@ -110,48 +97,63 @@ function createKLine() {
       options: {
         plugins: [],
         exclusivePlugins: [
-          createMAPlugin([
-            {
-              key: '5',
-              color: '#FF8E29',
-            },
-            {
-              key: '10',
-              color: '#ADE3F3',
-            },
-            {
-              key: '20',
-              color: '#EC6ED9',
-            },
-            {
-              key: '60',
-              color: '#01F46A',
-            },
-          ], theme),
-          createBOLLPlugin([
-            {
-              key: 'mid',
-              color: '#FF8E29',
-            },
-            {
-              key: 'upper',
-              color: '#ADE3F3',
-            },
-            {
-              key: 'lower',
-              color: '#EC6ED9',
-            },
-          ], theme),
-          createEMAPlugin([
-            {
-              key: '12',
-              color: '#FF8E29',
-            },
-            {
-              key: '50',
-              color: '#ADE3F3',
-            },
-          ], theme),
+          // createMAPlugin([
+          //   {
+          //     key: '5',
+          //     color: '#FF8E29',
+          //   },
+          //   {
+          //     key: '10',
+          //     color: '#ADE3F3',
+          //   },
+          //   {
+          //     key: '20',
+          //     color: '#EC6ED9',
+          //   },
+          //   {
+          //     key: '60',
+          //     color: '#01F46A',
+          //   },
+          // ]),
+          // createBOLLPlugin([
+          //   {
+          //     key: 'mid',
+          //     color: '#FF8E29',
+          //   },
+          //   {
+          //     key: 'upper',
+          //     color: '#ADE3F3',
+          //   },
+          //   {
+          //     key: 'lower',
+          //     color: '#EC6ED9',
+          //   },
+          // ]),
+          // createEMAPlugin([
+          //   {
+          //     key: '12',
+          //     color: '#FF8E29',
+          //   },
+          //   {
+          //     key: '50',
+          //     color: '#ADE3F3',
+          //   },
+          // ]),
+          // createSMAPlugin([
+          //   {
+          //     key: '5',
+          //     color: '#FF8E29',
+          //   },
+          //   {
+          //     key: '10',
+          //     color: '#ADE3F3',
+          //   },
+          //   {
+          //     key: '20',
+          //     color: '#EC6ED9',
+          //   },
+          // ]),
+          createSARPlugin(),
         ],
       },
     },
@@ -189,5 +191,5 @@ function createKLine() {
     },
   });
 }
-createTimeShare();
+// createTimeShare();
 createKLine();

@@ -6,42 +6,37 @@ import { divide } from '../algorithm/divide';
 import { MovableRange } from '../algorithm/range';
 import { Rect } from '../graphic/primitive';
 import { drawLine, drawXAxis, drawYAxis } from '../paint-utils/index';
-import { autoResetStyle, Chart, YAxisDetail } from './chart';
+import { autoResetStyle, Chart, ChartTheme, YAxisDetail } from './chart';
 import { ChartTitle } from './chart-title';
 import { TimeShareData } from './data-structure';
 import { Drawer, DrawerOptions } from './drawer';
 
+export interface TimeShareTheme extends ChartTheme {
+  timeShare: {
+    price: string;
+    linearGradient: string[];
+    avg: string;
+  };
+}
 export const TimeShareWhiteTheme = {
   price: '#4B99FB',
-  rise: '#F55559',
-  fall: '#7DCE8D',
-  same: '#7DCE8D',
   linearGradient: [
     'rgba(75, 153, 251, 0.4)',
     'rgba(75, 153, 251, 0)',
   ],
   avg: '#F89D37',
-  titleBackground: '#F2F4F4',
-  gridLine: '#E7EAEB',
-  xTick: '#5E667F',
 };
 export const TimeShareBlackTheme = {
   price: '#4B99FB',
-  rise: '#F55559',
-  fall: '#7DCE8D',
-  same: '#7DCE8D',
   linearGradient: [
     'rgba(75, 153, 251, 0.4)',
     'rgba(75, 153, 251, 0)',
   ],
   avg: '#F89D37',
-  titleBackground: '#22252B',
-  gridLine: '#282D38',
-  xTick: '#AEB4BE',
 };
 
 export class TimeShareDrawer extends Drawer {
-  public static theme = TimeShareWhiteTheme;
+  public theme: TimeShareTheme;
   public titleDrawer: ChartTitle;
   public range: MovableRange<TimeShareData>;
   protected topValue = ((lastTopValue = Number.MIN_VALUE) =>
@@ -62,6 +57,9 @@ export class TimeShareDrawer extends Drawer {
   )();
   constructor(chart: Chart, options: DrawerOptions) {
     super(chart, options);
+    this.theme = Object.assign({
+      timeShare: TimeShareBlackTheme,
+    }, this.chart.theme);
     this.xTickFormatter = this.xTickFormatter.bind(this);
     this.context = chart.context;
     this.titleDrawer = new ChartTitle(
@@ -70,15 +68,15 @@ export class TimeShareDrawer extends Drawer {
         {
           x: 5 * this.chart.options.resolution,
           label: '分时走势',
-          color: TimeShareDrawer.theme.price,
+          color: this.theme.timeShare.price,
         },
         {
           x: 50 + 5 * this.chart.options.resolution,
           label: '均线',
-          color: TimeShareDrawer.theme.avg,
+          color: this.theme.timeShare.avg,
         },
       ],
-      TimeShareDrawer.theme.titleBackground,
+      this.theme.titleBackground,
       'white',
       this.chart.options.resolution,
     );
@@ -109,11 +107,11 @@ export class TimeShareDrawer extends Drawer {
     const size = 5 * this.chart.options.resolution;
     ctx.beginPath();
     ctx.arc(x, yScale(data[selectedIndex].price), size, 0, Math.PI * 2);
-    ctx.fillStyle = TimeShareDrawer.theme.price;
+    ctx.fillStyle = this.theme.timeShare.price;
     ctx.fill();
     ctx.beginPath();
     ctx.arc(x, yScale(data[selectedIndex].avg), size, 0, Math.PI * 2);
-    ctx.fillStyle = TimeShareDrawer.theme.avg;
+    ctx.fillStyle = this.theme.timeShare.avg;
     ctx.fill();
   }
   public resize(frame: Rect) {
@@ -150,7 +148,7 @@ export class TimeShareDrawer extends Drawer {
     const lastPrice = this.chart.lastPrice;
     const tickValues = divide(this.bottomValue(), this.topValue()).map((n) => ({
         value: n,
-        color: n > lastPrice ? TimeShareDrawer.theme.rise : TimeShareDrawer.theme.fall,
+        color: n > lastPrice ? this.theme.rise : this.theme.fall,
     }));
     drawYAxis(
       this.context,
@@ -159,7 +157,7 @@ export class TimeShareDrawer extends Drawer {
       this.yScale,
       this.chart.options.resolution,
       true,
-      TimeShareDrawer.theme.gridLine,
+      this.theme.gridLine,
     );
     drawYAxis(
       this.context,
@@ -168,7 +166,7 @@ export class TimeShareDrawer extends Drawer {
       this.yScale,
       this.chart.options.resolution,
       false,
-      TimeShareDrawer.theme.gridLine,
+      this.theme.gridLine,
       (v) => this.deltaInPercentage(v),
       'right',
     );
@@ -187,9 +185,9 @@ export class TimeShareDrawer extends Drawer {
       this.chart.xScale,
       this.chart.options.resolution,
       true,
-      TimeShareDrawer.theme.gridLine,
+      this.theme.gridLine,
       this.xTickFormatter,
-      TimeShareDrawer.theme.xTick,
+      this.theme.xTick,
     );
   }
   protected drawAxes() {
@@ -209,12 +207,12 @@ export class TimeShareDrawer extends Drawer {
     ctx.beginPath();
     drawArea(range.visible());
     const linearGradient = ctx.createLinearGradient(0, 0, 0, frame.height);
-    TimeShareDrawer.theme.linearGradient.forEach((color, i) =>
+    this.theme.timeShare.linearGradient.forEach((color, i) =>
       linearGradient.addColorStop(i, color));
     ctx.fillStyle = linearGradient;
     ctx.fill();
-    this.drawLine('price', TimeShareDrawer.theme.price);
-    this.drawLine('avg', TimeShareDrawer.theme.avg);
+    this.drawLine('price', this.theme.timeShare.price);
+    this.drawLine('avg', this.theme.timeShare.avg);
   }
   @autoResetStyle()
   protected drawLine(key: keyof TimeShareData, color = 'black') {

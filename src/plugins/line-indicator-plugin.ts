@@ -18,14 +18,14 @@ export function createLinePlugin(
     dataObjectKey: string,
     title: string;
     lineData: DatumColorMap[],
-    detailMapper: (key: string, datum: number, index: number) => { x: number; label: string; },
-    theme: TitleBarTheme
+    detailMapper: (key: string, datum: number, index: number) => { x: number; label: string; }
   },
 ): ExclusiveDrawerPluginConstructor {
-  return class LinIndicatorPlugin extends ExclusiveDrawerPlugin {
+  return class LineIndicatorPlugin extends ExclusiveDrawerPlugin {
     public titleDrawer: ChartTitle;
     constructor(protected pluginHost: Drawer) {
       super(pluginHost);
+      const theme = pluginHost.chart.theme;
       this.titleDrawer = new ChartTitle(
         this.pluginHost.context,
         config.title,
@@ -33,8 +33,8 @@ export function createLinePlugin(
           ...config.detailMapper(key, 0, i),
           color,
         })),
-        config.theme.background,
-        config.theme.title,
+        theme.titleBackground,
+        theme.title,
         this.pluginHost.chart.options.resolution,
       );
     }
@@ -42,8 +42,8 @@ export function createLinePlugin(
       const { yScale, range } = this.pluginHost;
       const { xScale } = this.pluginHost.chart;
       config.lineData.forEach(({key, color}) => {
-        const maData = range.visible().map((d) => (d as any)[config.dataObjectKey][key]);
-        const trimed = trimNulls(maData);
+        const data = range.visible().map((d) => (d as any)[config.dataObjectKey][key]);
+        const trimed = trimNulls(data);
         drawLine(
           this.pluginHost.context,
           trimed.result.map((d, i) => ({

@@ -16,25 +16,7 @@ import { ChartTitle } from './chart-title';
 import { CandleStickData } from './data-structure';
 import { Drawer, DrawerOptions } from './drawer';
 
-export const CandleStickWhiteTheme = {
-  rise: '#F55559',
-  fall: '#7DCE8D',
-  gridLine: '#E7EAEB',
-  yTick: '#5E667F',
-  xTick: '#5E667F',
-};
-
-export const CandleStickBlackTheme = {
-  rise: '#F55559',
-  fall: '#7DCE8D',
-  gridLine: '#282D38',
-  yTick: '#AEB4BE',
-  xTick: '#AEB4BE',
-};
-
 export class CandleStickDrawer extends Drawer {
-  public static theme = CandleStickWhiteTheme;
-
   public range: MovableRange<CandleStickData>;
   private _count: number;
   constructor(chart: Chart, options: DrawerOptions) {
@@ -93,12 +75,12 @@ export class CandleStickDrawer extends Drawer {
   protected drawYAxis() {
     drawYAxis(
       this.context,
-      divide(this.bottomValue(), this.topValue()).map((n) => ({ value: n, color: CandleStickDrawer.theme.yTick})),
+      divide(this.bottomValue(), this.topValue()).map((n) => ({ value: n, color: this.chart.theme.yTick})),
       this.frame,
       this.yScale,
       this.chart.options.resolution,
       true,
-      CandleStickDrawer.theme.gridLine,
+      this.chart.theme.gridLine,
     );
   }
   protected drawXAxis() {
@@ -111,11 +93,11 @@ export class CandleStickDrawer extends Drawer {
       this.chart.xScale,
       this.chart.options.resolution,
       true,
-      CandleStickDrawer.theme.gridLine,
+      this.chart.theme.gridLine,
       (v: number) => {
         return this.xTickFormatter(v, this.range.visible());
       },
-      CandleStickDrawer.theme.xTick,
+      this.chart.theme.xTick,
     );
   }
   protected xTickFormatter(i: number, data: CandleStickData[]) {
@@ -158,7 +140,7 @@ export class CandleStickDrawer extends Drawer {
       width -= width * 0.2;
       const x = xScale(i) - width / 2;
       ctx.fillStyle = determineCandleColor(d, i, range) > 0 ?
-        CandleStickDrawer.theme.rise : CandleStickDrawer.theme.fall;
+        this.chart.theme.rise : this.chart.theme.fall;
       ctx.fillRect(x, y, width, height);
       const lineWidth = 1 * resolution;
       ctx.fillRect(x + width / 2 - lineWidth / 2, yScale(d.high), lineWidth, yScale(maxV) - yScale(d.high));

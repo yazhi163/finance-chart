@@ -1,7 +1,7 @@
 import { ExclusiveDrawerPluginConstructor } from '../index';
 import { createLinePlugin, DatumColorMap, TitleBarTheme  } from './line-indicator-plugin';
 
-export function createBOLLPlugin(lineData: DatumColorMap[], theme: TitleBarTheme): ExclusiveDrawerPluginConstructor {
+export function createBOLLPlugin(lineData: DatumColorMap[]): ExclusiveDrawerPluginConstructor {
   return createLinePlugin(
     {
       dataObjectKey: 'boll',
@@ -13,7 +13,6 @@ export function createBOLLPlugin(lineData: DatumColorMap[], theme: TitleBarTheme
           label: `${key.toUpperCase()}: ${datum === 0 ? 0 : datum.toFixed(2)}`,
         };
       },
-      theme,
     },
   );
 }

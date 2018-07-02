@@ -17,3 +17,5 @@ export * from './plugins/line-indicator-plugin';
 export * from './plugins/ma-plugin';
 export * from './plugins/boll-plugin';
 export * from './plugins/ema-plugin';
+export * from './plugins/sma-plugin';
+export * from './plugins/sar-plugin';

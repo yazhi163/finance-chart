@@ -1,7 +1,7 @@
 import { ExclusiveDrawerPluginConstructor } from '../index';
 import { createLinePlugin, DatumColorMap, TitleBarTheme  } from './line-indicator-plugin';
 
-export function createMAPlugin(lineData: DatumColorMap[], theme: TitleBarTheme): ExclusiveDrawerPluginConstructor {
+export function createMAPlugin(lineData: DatumColorMap[]): ExclusiveDrawerPluginConstructor {
   return createLinePlugin(
     {
       dataObjectKey: 'ma',
@@ -13,7 +13,6 @@ export function createMAPlugin(lineData: DatumColorMap[], theme: TitleBarTheme):
           label: `MA${key}: ${datum === 0 ? 0 : datum.toFixed(2)}`,
         };
       },
-      theme,
     },
   );
 }

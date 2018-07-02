@@ -41,6 +41,7 @@ export interface ChartOptions {
   data: any[];
   tradeTimes: TradeTimeSegment[];
   mainDrawer: DrawerConfig;
+  theme?: ChartTheme;
   resolution?: number;
   count?: number;
   mainRatio?: number;
@@ -82,40 +83,25 @@ export function shouldRedraw() {
     return descriptor;
   };
 }
-
-function createOptions(
-  {
-    selector,
-    lastPrice,
-    data = [],
-    tradeTimes,
-    resolution = 1,
-    count = 240,
-    mainDrawer,
-    mainRatio = 0.6,
-    auxiliaryDrawers = [],
-    detailProvider,
-  }: ChartOptions,
-) {
-  if (mainDrawer) {
-    if (auxiliaryDrawers.length === 0) {
-      mainRatio = 1;
+function createOptions(options: ChartOptions) {
+  if (options.mainDrawer) {
+    if (options.auxiliaryDrawers.length === 0) {
+      options.mainRatio = 1;
     }
   } else {
-    mainRatio = 0;
+    options.mainRatio = 0;
   }
-  return {
-    selector,
-    lastPrice,
-    data,
-    tradeTimes,
-    resolution,
-    count,
-    mainDrawer,
-    mainRatio,
-    auxiliaryDrawers,
-    detailProvider,
-  };
+  return Object.assign({}, {
+    lastPrice: 0.01,
+    data: [],
+    tradeTimes: [],
+    theme: ChartBlackTheme,
+    resolution: 1,
+    count: 240,
+    mainRatio: 0.6,
+    mainDrawer: null,
+    auxiliaryDrawers: [],
+  }, options);
 }
 
 enum InteractiveState {
@@ -124,22 +110,51 @@ enum InteractiveState {
   Dragging = 1 << 1,
   Srolling = 1 << 2,
 }
-export const ChartWhiteTheme = {
+export interface ChartTheme {
+  rise: string;
+  fall: string;
+  gridLine: string;
+  yTick: string;
+  xTick: string;
+  frontSight: string;
+  frontSightLabelBackground: string;
+  background: string;
+  detailColor: string;
+  detailBackground: string;
+  title: string;
+  titleBackground: string;
+  [key: string]: string | object;
+}
+export const ChartWhiteTheme: ChartTheme = {
+  rise: '#F55559',
+  fall: '#7DCE8D',
+  gridLine: '#E7EAEB',
+  yTick: '#5E667F',
+  xTick: '#5E667F',
   frontSight: '#4B99FB',
   frontSightLabelBackground: '#E2F1FE',
   background: '#ffffff',
   detailColor: '#5E667F',
   detailBackground: '#F0F2F2',
+  title: '#5E667F',
+  titleBackground: '#F2F4F4',
 };
-export const ChartBlackTheme = {
+export const ChartBlackTheme: ChartTheme = {
+  rise: '#F55559',
+  fall: '#7DCE8D',
+  gridLine: '#282D38',
+  yTick: '#AEB4BE',
+  xTick: '#AEB4BE',
   frontSight: '#4B99FB',
   frontSightLabelBackground: '#1D1F23',
   background: '#1D1F23',
   detailColor: '#7B7E8D',
   detailBackground: '#282E36',
+  title: '#AEB4BE',
+  titleBackground: '#22252B',
 };
 export class Chart {
-  public static theme = ChartWhiteTheme;
+  public theme: ChartTheme;
   public options: ChartOptions;
   public requestAnimationFrameId: number = null;
   public rootElement: HTMLElement;
@@ -176,6 +191,7 @@ export class Chart {
     this.onTouchEnd = this.onTouchEnd.bind(this);
 
     this.options = createOptions(options);
+    this.theme = this.options.theme;
     this.lastPrice = this.options.lastPrice;
     this.resize = this.resize.bind(this);
     this.movableRange = new MovableRange(this.options.data, 0);
@@ -259,7 +275,7 @@ export class Chart {
         // if (process.env.NODE_ENV === 'development') {
         //   console.time('rendering cost');
         // }
-        this.context.fillStyle = Chart.theme.background;
+        this.context.fillStyle = this.theme.background;
         this.context.fillRect(0, 0, this.width, this.height);
         this.mainDrawer && this.mainDrawer.update();
 
@@ -373,7 +389,7 @@ export class Chart {
     ctx.moveTo(PADDING_LEFT * resolution, y);
     ctx.lineTo(this.width - PADDING_RIGHT * resolution, y);
     ctx.lineWidth = 1 * this.options.resolution;
-    ctx.strokeStyle = Chart.theme.frontSight;
+    ctx.strokeStyle = this.theme.frontSight;
     // not support in ie 10
     if (typeof ctx.setLineDash === 'function') {
       ctx.setLineDash([2, 5, 15, 5]);
@@ -387,7 +403,7 @@ export class Chart {
       yAxisDetail = drawer.getYAxisDetail(y);
     }
     this.forEachVisibleDrawer((drawer) => drawer.drawFrontSight());
-    ctx.strokeStyle = Chart.theme.frontSight;
+    ctx.strokeStyle = this.theme.frontSight;
     // not support in ie 10
     if (typeof ctx.setLineDash === 'function') {
       ctx.setLineDash([]);
@@ -403,12 +419,12 @@ export class Chart {
         width: labelWidth,
         height: X_AXIS_HEIGHT * resolution,
       };
-      ctx.fillStyle = Chart.theme.frontSightLabelBackground;
+      ctx.fillStyle = this.theme.frontSightLabelBackground;
       ctx.fillRect(rect.x, rect.y, rect.width, rect.height);
       ctx.strokeRect(rect.x, rect.y, rect.width, rect.height);
       ctx.textBaseline = 'top';
       ctx.textAlign = 'center';
-      ctx.fillStyle = Chart.theme.frontSight;
+      ctx.fillStyle = this.theme.frontSight;
       ctx.fillText(xAxisDetail, rect.x + rect.width / 2, rect.y +  TICK_MARGIN * resolution);
     }
     ctx.textBaseline = 'middle';
@@ -422,10 +438,10 @@ export class Chart {
         width: textWidth + TICK_MARGIN * 2 * resolution,
         height: FRONT_SIGHT_LABEL_HEIGHT * resolution,
       };
-      ctx.fillStyle = Chart.theme.frontSightLabelBackground;
+      ctx.fillStyle = this.theme.frontSightLabelBackground;
       ctx.fillRect(rect.x, rect.y - rect.height / 2, rect.width, rect.height);
       ctx.strokeRect(rect.x, rect.y - rect.height / 2, rect.width, rect.height);
-      ctx.fillStyle = Chart.theme.frontSight;
+      ctx.fillStyle = this.theme.frontSight;
       ctx.fillText(yAxisDetail.left, rect.x + TICK_MARGIN * resolution, rect.y);
     }
     if (yAxisDetail.right) {
@@ -438,10 +454,10 @@ export class Chart {
         width: w,
         height: FRONT_SIGHT_LABEL_HEIGHT * resolution,
       };
-      ctx.fillStyle = Chart.theme.frontSightLabelBackground;
+      ctx.fillStyle = this.theme.frontSightLabelBackground;
       ctx.fillRect(rect.x, rect.y - rect.height / 2, rect.width, rect.height);
       ctx.strokeRect(rect.x, rect.y - rect.height / 2, rect.width, rect.height);
-      ctx.fillStyle = Chart.theme.frontSight;
+      ctx.fillStyle = this.theme.frontSight;
       ctx.fillText(yAxisDetail.right, rect.x + rect.width -  TICK_MARGIN * resolution, rect.y);
     }
     this.drawDetail();
@@ -449,8 +465,8 @@ export class Chart {
   private watchDetail() {
     const { canvas } = this;
     this.detailElement = document.createElement('div');
-    this.detailElement.style.backgroundColor = Chart.theme.detailBackground;
-    this.detailElement.style.color = Chart.theme.detailColor;
+    this.detailElement.style.backgroundColor = this.theme.detailBackground;
+    this.detailElement.style.color = this.theme.detailColor;
     this.detailElement.className = 'chart-detail';
     this.rootElement.appendChild(this.detailElement);
     canvas.addEventListener('contextmenu', this.onContextMenu);
