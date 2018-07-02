@@ -6,6 +6,7 @@ import {
   Chart,
   ChartBlackTheme,
   createBOLLPlugin,
+  createEMAPlugin,
   createMAPlugin,
   TimeShareBlackTheme,
   TimeShareDrawer,
@@ -139,6 +140,16 @@ function createKLine() {
             {
               key: 'lower',
               color: '#EC6ED9',
+            },
+          ], theme),
+          createEMAPlugin([
+            {
+              key: '12',
+              color: '#FF8E29',
+            },
+            {
+              key: '50',
+              color: '#ADE3F3',
             },
           ], theme),
         ],
