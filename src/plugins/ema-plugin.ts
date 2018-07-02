@@ -12,7 +12,7 @@ export function createEMAPlugin(lineData: DatumColorMap[]): ExclusiveDrawerPlugi
           x: i * 80 + 80,
           label: `EMA ${key}: ${datum === 0 ? 0 : datum.toFixed(2)}`,
         };
-      }
+      },
     },
   );
 }
