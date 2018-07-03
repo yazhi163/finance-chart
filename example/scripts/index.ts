@@ -4,6 +4,7 @@ import {
   CandleStickVolumeDrawer,
   Chart,
   createBOLLPlugin,
+  createDMAPlugin,
   createEMAPlugin,
   createKDJPlugin,
   createKDJYAxisPlugin,
@@ -208,6 +209,26 @@ function createKLine() {
               {
                 key: '3',
                 color: '#EC6ED9',
+              },
+            ]),
+          ],
+        },
+      },
+      {
+        constructor: Drawer,
+        options: {
+          plugins: [
+            createYAxisPlugin(),
+          ],
+          exclusivePlugins: [
+            createDMAPlugin([
+              {
+                key: 'dif',
+                color: '#FF8E29',
+              },
+              {
+                key: 'ama',
+                color: '#ADE3F3',
               },
             ]),
           ],

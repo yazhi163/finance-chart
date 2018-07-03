@@ -1,16 +1,16 @@
 import { ExclusiveDrawerPlugin, ExclusiveDrawerPluginConstructor } from '../chart/drawer-plugin';
 import { createLinePlugin, DatumColorMap, TitleBarTheme  } from './line-indicator-plugin';
 
-export function createRSIPlugin(lineData: DatumColorMap[], dataObjectKey = 'rsi'): ExclusiveDrawerPluginConstructor {
-  return class RSIPlugin extends createLinePlugin(
+export function createDMAPlugin(lineData: DatumColorMap[], dataObjectKey = 'dma'): ExclusiveDrawerPluginConstructor {
+  return class DMAPlugin extends createLinePlugin(
     {
       dataObjectKey,
-      title: 'RSI',
+      title: 'DMA',
       lineData,
       detailMapper(key, datum, i) {
         return {
           x: i * 80 + 50,
-          label: `RSI: ${key}: ${datum === 0 ? 0 : datum.toFixed(2)}`,
+          label: `${key.toUpperCase()}: ${datum === 0 ? 0 : datum.toFixed(2)}`,
         };
       },
     },
@@ -20,9 +20,8 @@ export function createRSIPlugin(lineData: DatumColorMap[], dataObjectKey = 'rsi'
       let maxValue = Number.MIN_SAFE_INTEGER;
       const data = this.pluginHost.range.visible();
       const all = [
-        ...data.map((item) => (item as any)[dataObjectKey]['1']),
-        ...data.map((item) => (item as any)[dataObjectKey]['2']),
-        ...data.map((item) => (item as any)[dataObjectKey]['3']),
+        ...data.map((item) => (item as any)[dataObjectKey].dif),
+        ...data.map((item) => (item as any)[dataObjectKey].ama),
       ];
       for (let i = 0, len = all.length; i < len; ++i) {
         const v = all[i];

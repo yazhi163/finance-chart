@@ -5,13 +5,6 @@ import { drawYAxis, TickValueDescription } from '../paint-utils/index';
 
 export function createYAxisPlugin(ticks: number | number[] = 5): DrawerPluginConstructor {
   return class YAxisPlugin extends DrawerPlugin {
-    public onSetRange() {
-      const host = this.pluginHost;
-      if (host.minValue === 0 && host.maxValue === 0) {
-        host.minValue = 0;
-        host.maxValue = 100;
-      }
-    }
     public predraw() {
       const host = this.pluginHost;
       let tickValues: TickValueDescription[];
