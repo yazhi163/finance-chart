@@ -95,20 +95,7 @@ export class VolumeDrawer extends Drawer {
     this.drawTitle(this.selectedIndex || data.length - 1);
     this.drawVolumes();
   }
-  protected drawXAxis() {
-    const tickValues = divide(0, this.chart.count() - 1, 5);
-    drawXAxis(
-      this.context,
-      tickValues,
-      this.chartFrame,
-      this.chart.xScale,
-      this.chart.options.resolution,
-      false,
-      this.theme.gridLine,
-    );
-  }
   protected drawAxes() {
-    this.drawXAxis();
     this.drawYAxis();
   }
   protected drawYAxis() {

@@ -88,7 +88,7 @@ function createTimeShare() {
   autoUpdateTimeShare();
 }
 function createKLine() {
-  new Chart({
+  (window as any).klineChart = new Chart({
     selector: '#candle-stick',
     count: 50,
     lastPrice: 50.49999809265137,

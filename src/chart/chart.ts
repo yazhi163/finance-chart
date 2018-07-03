@@ -162,7 +162,7 @@ export class Chart {
   public width: number = 0;
   public height: number = 0;
   public mainDrawer: Drawer;
-  public auxiliaryDrawer: Drawer[] = [];
+  public auxiliaryDrawers: Drawer[] = [];
   public selectedAuxiliaryDrawer = 0;
   public destroyed = false;
   public movableRange: MovableRange<object>;
@@ -210,7 +210,7 @@ export class Chart {
       width: this.width,
       height: this.mainChartHeight,
     });
-    this.auxiliaryDrawer.forEach((drawer) => {
+    this.auxiliaryDrawers.forEach((drawer) => {
       drawer.resize({
         x: 0,
         y: this.auxiliaryChartY,
@@ -269,25 +269,25 @@ export class Chart {
     if (!this.requestAnimationFrameId) {
       this.requestAnimationFrameId = requestAnimationFrame(() => {
         this.context.clearRect(0, 0, this.width, this.height);
-        if (process.env.NODE_ENV === 'development') {
-          console.time('rendering cost');
-        }
+        // if (process.env.NODE_ENV === 'development') {
+        //   console.time('rendering cost');
+        // }
         this.context.fillStyle = this.theme.background;
         this.context.fillRect(0, 0, this.width, this.height);
         this.mainDrawer && this.mainDrawer.update();
 
         this.context.clearRect(0, this.auxiliaryChartY, this.width, this.auxiliaryChartHeight);
 
-        this.auxiliaryDrawer[this.selectedAuxiliaryDrawer] &&
-          this.auxiliaryDrawer[this.selectedAuxiliaryDrawer].update();
+        this.auxiliaryDrawers[this.selectedAuxiliaryDrawer] &&
+          this.auxiliaryDrawers[this.selectedAuxiliaryDrawer].update();
         this.requestAnimationFrameId = null;
         if (this.interactive & InteractiveState.ShowDetail) {
           this.drawFrontSight();
         }
 
-        if (process.env.NODE_ENV === 'development') {
-          console.timeEnd('rendering cost');
-        }
+        // if (process.env.NODE_ENV === 'development') {
+        //   console.timeEnd('rendering cost');
+        // }
       });
     }
   }
@@ -314,6 +314,25 @@ export class Chart {
   @shouldRedraw()
   public nextMainExclusivePlugin() {
     this.mainDrawer.nextExclusivePlugin();
+  }
+  @shouldRedraw()
+  public useMainExclusivePlugin(index: number) {
+    this.mainDrawer.useExclusivePlugin(index);
+  }
+  @shouldRedraw()
+  public nextAuxiliarDrawer() {
+    const auxiliaryDrawerCount = this.auxiliaryDrawers.length;
+    if (auxiliaryDrawerCount === 0) {
+      throw Error(`expect auxiliary drawer exist, but only 0 auxiliary drawer`);
+    }
+    this.selectedAuxiliaryDrawer = (this.selectedAuxiliaryDrawer + 1) % auxiliaryDrawerCount;
+  }
+  @shouldRedraw()
+  public useAuxiliarDrawer(index: number) {
+    if (index < 0 || index >= this.auxiliaryDrawers.length) {
+      throw new Error('index out of bound');
+    }
+    this.selectedAuxiliaryDrawer = index;
   }
   get data() {
     return this.movableRange.visible();
@@ -351,7 +370,7 @@ export class Chart {
       this.mainDrawer = new options.mainDrawer.constructor(this, options.mainDrawer.options);
     }
     options.auxiliaryDrawers.forEach((drawer) => {
-      this.auxiliaryDrawer.push(new drawer.constructor(this, drawer.options));
+      this.auxiliaryDrawers.push(new drawer.constructor(this, drawer.options));
     });
     this.movableRange.setVisibleLength(this.count());
     this.resize();
@@ -359,16 +378,16 @@ export class Chart {
   private destroyDrawer() {
     // clear referecne to Chart instance
     this.mainDrawer.chart = null;
-    this.auxiliaryDrawer.forEach((drawer) => {
+    this.auxiliaryDrawers.forEach((drawer) => {
       drawer.chart = null;
     });
     this.mainDrawer = null;
-    this.auxiliaryDrawer = [];
+    this.auxiliaryDrawers = [];
   }
   @shouldRedraw()
   private _resetDrawerData() {
     this.mainDrawer && this.mainDrawer.setRange(this.movableRange);
-    this.auxiliaryDrawer && this.auxiliaryDrawer.forEach((drawer) => drawer.setRange(this.movableRange));
+    this.auxiliaryDrawers && this.auxiliaryDrawers.forEach((drawer) => drawer.setRange(this.movableRange));
   }
   @autoResetStyle()
   private drawFrontSight() {
@@ -396,7 +415,7 @@ export class Chart {
     if (y <= this.mainChartHeight) {
       yAxisDetail = this.mainDrawer.getYAxisDetail(y);
     } else {
-      const drawer = this.auxiliaryDrawer[this.selectedAuxiliaryDrawer];
+      const drawer = this.auxiliaryDrawers[this.selectedAuxiliaryDrawer];
       yAxisDetail = drawer.getYAxisDetail(y);
     }
     this.forEachVisibleDrawer((drawer) => drawer.drawFrontSight());
@@ -599,7 +618,7 @@ export class Chart {
   }
   private forEachVisibleDrawer(action: (drawer: Drawer) => void) {
     this.mainDrawer && action(this.mainDrawer);
-    const drawer = this.auxiliaryDrawer[this.selectedAuxiliaryDrawer];
+    const drawer = this.auxiliaryDrawers[this.selectedAuxiliaryDrawer];
     drawer && action(drawer);
   }
   private clampSelectedIndex() {

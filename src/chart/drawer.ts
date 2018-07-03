@@ -89,7 +89,13 @@ export class Drawer {
     if (pluginsCount === 0) {
       throw Error(`expect exclusive plugin exist, but only 0 plugin`);
     }
-    this.selectedExclusivePlugin = clamp(this.selectedExclusivePlugin + 1, 0, pluginsCount - 1);
+    this.selectedExclusivePlugin = (this.selectedExclusivePlugin + 1) % pluginsCount;
+  }
+  public useExclusivePlugin(index: number) {
+    if (index < 0 || index >= this.exclusivePlugins.length) {
+      throw new Error('index out of bound');
+    }
+    this.selectedExclusivePlugin = index;
   }
   public topValue = () => {
     return this.maxValue * (1 + Math.sign(this.maxValue) * 0.01);
