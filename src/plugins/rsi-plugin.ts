@@ -1,7 +1,23 @@
 import { ExclusiveDrawerPlugin, ExclusiveDrawerPluginConstructor } from '../chart/drawer-plugin';
 import { createLinePlugin, DatumColorMap, TitleBarTheme  } from './line-indicator-plugin';
 
-export function createRSIPlugin(lineData: DatumColorMap[], dataObjectKey = 'rsi'): ExclusiveDrawerPluginConstructor {
+export function createRSIPlugin(
+  lineData: DatumColorMap[] = [
+    {
+      key: '1',
+      color: '#FF8E29',
+    },
+    {
+      key: '2',
+      color: '#ADE3F3',
+    },
+    {
+      key: '3',
+      color: '#EC6ED9',
+    },
+  ],
+  dataObjectKey = 'rsi',
+): ExclusiveDrawerPluginConstructor {
   return class RSIPlugin extends createLinePlugin(
     {
       dataObjectKey,

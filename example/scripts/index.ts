@@ -8,6 +8,7 @@ import {
   createEMAPlugin,
   createKDJPlugin,
   createKDJYAxisPlugin,
+  createMACDPlugin,
   createMAPlugin,
   createRSIPlugin,
   createRSIYAxisPlugin,
@@ -120,20 +121,6 @@ function createKLine() {
               color: '#01F46A',
             },
           ]),
-          createBOLLPlugin([
-            {
-              key: 'mid',
-              color: '#FF8E29',
-            },
-            {
-              key: 'upper',
-              color: '#ADE3F3',
-            },
-            {
-              key: 'lower',
-              color: '#EC6ED9',
-            },
-          ]),
           createEMAPlugin([
             {
               key: '12',
@@ -158,6 +145,7 @@ function createKLine() {
               color: '#EC6ED9',
             },
           ]),
+          createBOLLPlugin(),
           createSARPlugin(),
         ],
       },
@@ -173,20 +161,7 @@ function createKLine() {
             createKDJYAxisPlugin(),
           ],
           exclusivePlugins: [
-            createKDJPlugin([
-              {
-                key: 'k',
-                color: '#FF8E29',
-              },
-              {
-                key: 'd',
-                color: '#ADE3F3',
-              },
-              {
-                key: 'j',
-                color: '#EC6ED9',
-              },
-            ]),
+            createKDJPlugin(),
           ],
         },
       },
@@ -197,20 +172,7 @@ function createKLine() {
             createRSIYAxisPlugin(),
           ],
           exclusivePlugins: [
-            createRSIPlugin([
-              {
-                key: '1',
-                color: '#FF8E29',
-              },
-              {
-                key: '2',
-                color: '#ADE3F3',
-              },
-              {
-                key: '3',
-                color: '#EC6ED9',
-              },
-            ]),
+            createRSIPlugin(),
           ],
         },
       },
@@ -221,16 +183,18 @@ function createKLine() {
             createYAxisPlugin(),
           ],
           exclusivePlugins: [
-            createDMAPlugin([
-              {
-                key: 'dif',
-                color: '#FF8E29',
-              },
-              {
-                key: 'ama',
-                color: '#ADE3F3',
-              },
-            ]),
+            createDMAPlugin(),
+          ],
+        },
+      },
+      {
+        constructor: Drawer,
+        options: {
+          plugins: [
+            createYAxisPlugin(),
+          ],
+          exclusivePlugins: [
+            createMACDPlugin(),
           ],
         },
       },

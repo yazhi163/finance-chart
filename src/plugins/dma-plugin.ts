@@ -1,7 +1,19 @@
 import { ExclusiveDrawerPlugin, ExclusiveDrawerPluginConstructor } from '../chart/drawer-plugin';
 import { createLinePlugin, DatumColorMap, TitleBarTheme  } from './line-indicator-plugin';
 
-export function createDMAPlugin(lineData: DatumColorMap[], dataObjectKey = 'dma'): ExclusiveDrawerPluginConstructor {
+export function createDMAPlugin(
+  lineData: DatumColorMap[] = [
+    {
+      key: 'dif',
+      color: '#FF8E29',
+    },
+    {
+      key: 'ama',
+      color: '#ADE3F3',
+    },
+  ],
+  dataObjectKey = 'dma',
+): ExclusiveDrawerPluginConstructor {
   return class DMAPlugin extends createLinePlugin(
     {
       dataObjectKey,

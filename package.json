@@ -1,6 +1,6 @@
 {
   "name": "@gitpad/finance-chart",
-  "version": "0.8.1",
+  "version": "1.0.0-alpha.0",
   "description": "finance chart",
   "main": "index.js",
   "types": "./dist/index.d.ts",

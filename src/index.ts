@@ -29,6 +29,7 @@ export * from './plugins/sar-plugin';
 export * from './plugins/kdj-plugin';
 export * from './plugins/rsi-plugin';
 export * from './plugins/dma-plugin';
+export * from './plugins/macd-plugin';
 
 export * from './plugins/y-axis-plugin';
 export * from './plugins/kdj-y-axis-plugin';

@@ -1,7 +1,23 @@
 import { ExclusiveDrawerPlugin, ExclusiveDrawerPluginConstructor } from '../chart/drawer-plugin';
 import { createLinePlugin, DatumColorMap, TitleBarTheme  } from './line-indicator-plugin';
 
-export function createKDJPlugin(lineData: DatumColorMap[], dataObjectKey = 'kdj'): ExclusiveDrawerPluginConstructor {
+export function createKDJPlugin(
+  lineData: DatumColorMap[] = [
+    {
+      key: 'k',
+      color: '#FF8E29',
+    },
+    {
+      key: 'd',
+      color: '#ADE3F3',
+    },
+    {
+      key: 'j',
+      color: '#EC6ED9',
+    },
+  ],
+  dataObjectKey = 'kdj',
+): ExclusiveDrawerPluginConstructor {
   return class KDJPlugin extends createLinePlugin(
     {
       dataObjectKey,
