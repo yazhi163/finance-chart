@@ -26,3 +26,7 @@ export * from './plugins/boll-plugin';
 export * from './plugins/ema-plugin';
 export * from './plugins/sma-plugin';
 export * from './plugins/sar-plugin';
+export * from './plugins/kdj-plugin';
+
+export * from './plugins/y-axis-plugin';
+export * from './plugins/kdj-y-axis-plugin';

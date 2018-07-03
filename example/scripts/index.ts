@@ -3,16 +3,17 @@ import {
   CandleStickDrawer,
   CandleStickVolumeDrawer,
   Chart,
-  ChartBlackTheme,
   createBOLLPlugin,
   createEMAPlugin,
+  createKDJPlugin,
+  createKDJYAxisPlugin,
   createMAPlugin,
   createSARPlugin,
   createSMAPlugin,
-  TimeShareBlackTheme,
+  createYAxisPlugin,
+  Drawer,
   TimeShareDrawer,
   TimeShareVolumeDrawer,
-  VolumeBlackTheme,
   VolumeDrawer,
 } from '../../src/index';
 import './index.scss';
@@ -87,7 +88,6 @@ function createTimeShare() {
 function createKLine() {
   new Chart({
     selector: '#candle-stick',
-    resolution: (window.devicePixelRatio || 1),
     count: 50,
     lastPrice: 50.49999809265137,
     data: MOCK_KLINE,
@@ -95,7 +95,9 @@ function createKLine() {
     mainDrawer: {
       constructor: CandleStickDrawer,
       options: {
-        plugins: [],
+        plugins: [
+          createYAxisPlugin(),
+        ],
         exclusivePlugins: [
           createMAPlugin([
             {
@@ -158,8 +160,32 @@ function createKLine() {
       },
     },
     auxiliaryDrawers: [
+      // {
+      //   constructor: CandleStickVolumeDrawer,
+      // },
       {
-        constructor: CandleStickVolumeDrawer,
+        constructor: Drawer,
+        options: {
+          plugins: [
+            createKDJYAxisPlugin(),
+          ],
+          exclusivePlugins: [
+            createKDJPlugin([
+              {
+                key: 'k',
+                color: '#FF8E29',
+              },
+              {
+                key: 'd',
+                color: '#ADE3F3',
+              },
+              {
+                key: 'j',
+                color: '#EC6ED9',
+              },
+            ]),
+          ],
+        },
       },
     ],
     detailProvider: (i, data) => {
@@ -191,5 +217,5 @@ function createKLine() {
     },
   });
 }
-createTimeShare();
+// createTimeShare();
 createKLine();

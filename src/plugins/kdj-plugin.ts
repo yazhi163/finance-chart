@@ -1,0 +1,38 @@
+import { ExclusiveDrawerPlugin, ExclusiveDrawerPluginConstructor } from '../chart/drawer-plugin';
+import { createLinePlugin, DatumColorMap, TitleBarTheme  } from './line-indicator-plugin';
+
+export function createKDJPlugin(lineData: DatumColorMap[], dataObjectKey = 'kdj'): ExclusiveDrawerPluginConstructor {
+  return class KDJPlugin extends createLinePlugin(
+    {
+      dataObjectKey,
+      title: 'KDJ',
+      lineData,
+      detailMapper(key, datum, i) {
+        return {
+          x: i * 80 + 50,
+          label: `${key.toUpperCase()}: ${datum === 0 ? 0 : datum.toFixed(2)}`,
+        };
+      },
+    },
+  ) {
+    public onSetRange() {
+      let { minValue, maxValue } = this.pluginHost;
+      const data = this.pluginHost.range.visible();
+      const all = [
+        ...data.map((item) => (item as any)[dataObjectKey].k),
+        ...data.map((item) => (item as any)[dataObjectKey].d),
+        ...data.map((item) => (item as any)[dataObjectKey].j),
+      ];
+      for (let i = 0, len = all.length; i < len; ++i) {
+        const v = all[i];
+        if (v < minValue) {
+          minValue = v;
+        } else if (v > maxValue) {
+          maxValue = v;
+        }
+      }
+      this.pluginHost.minValue = minValue;
+      this.pluginHost.maxValue = maxValue;
+    }
+  };
+}

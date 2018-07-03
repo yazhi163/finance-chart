@@ -39,7 +39,7 @@ export class TimeShareDrawer extends Drawer {
   public theme: TimeShareTheme;
   public titleDrawer: ChartTitle;
   public range: MovableRange<TimeShareData>;
-  protected topValue = ((lastTopValue = Number.MIN_VALUE) =>
+  public topValue = ((lastTopValue = Number.MIN_VALUE) =>
     () => {
       if (this.maxValue > lastTopValue) {
         lastTopValue = this.maxValue * (1.01);
@@ -47,7 +47,7 @@ export class TimeShareDrawer extends Drawer {
       return lastTopValue;
     }
   )();
-  protected bottomValue = ((lastBottomValue = Number.MAX_VALUE) =>
+  public bottomValue = ((lastBottomValue = Number.MAX_VALUE) =>
     () => {
       if (this.minValue < lastBottomValue) {
         lastBottomValue = this.minValue * (0.99);

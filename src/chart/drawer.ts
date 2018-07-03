@@ -91,6 +91,12 @@ export class Drawer {
     }
     this.selectedExclusivePlugin = clamp(this.selectedExclusivePlugin + 1, 0, pluginsCount - 1);
   }
+  public topValue = () => {
+    return this.maxValue * (1 + Math.sign(this.maxValue) * 0.01);
+  }
+  public bottomValue = () => {
+    return this.minValue * (1 - Math.sign(this.minValue) * 0.01);
+  }
   protected predraw() {
     this.pluginCall('predraw');
   }
@@ -108,12 +114,6 @@ export class Drawer {
   }
   protected get xAxisTickHeight() {
     return this._xAxisTickHeight * this.chart.options.resolution;
-  }
-  protected topValue = () => {
-    return this.maxValue * (1.01);
-  }
-  protected bottomValue = () => {
-    return this.minValue * (0.99);
   }
   protected resetYScale() {
     const { chartFrame } = this;
@@ -133,7 +133,7 @@ export class Drawer {
   private pluginCall<
     T extends keyof DrawerPlugin,
     U extends keyof ExclusiveDrawerPlugin
-  >(fnName: T, ...args: any[]) {
+  >(fnName: U, ...args: any[]) {
     this.plugins.forEach((plugin) =>
       (plugin[fnName] as () => void)
         .apply(plugin, args));

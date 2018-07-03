@@ -41,10 +41,13 @@ export function drawText(
   ctx.fillText(text, position.x, position.y);
   ctx.restore();
 }
-
+export interface TickValueDescription {
+  value: number;
+  color?: string;
+}
 export function drawYAxis(
   ctx: CanvasRenderingContext2D,
-  tickValues: Array<{ value: number; color?: string; }>,
+  tickValues: TickValueDescription[],
   frame: Rect,
   scale: ScaleLinear<number, number>,
   resolution = 1,

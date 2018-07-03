@@ -81,6 +81,7 @@ export class VolumeDrawer extends Drawer {
     } else {
       this.maxValue = 1000 * VolumeDrawer.proportion;
     }
+    this.minValue = 0;
     super.setRange(range);
   }
   public getYAxisDetail(y: number): YAxisDetail {
@@ -112,7 +113,7 @@ export class VolumeDrawer extends Drawer {
   }
   protected drawYAxis() {
     const tickValues = uniq(
-      divide(0, this.maxValue, 3))
+      divide(this.minValue, this.maxValue, 3))
         .map((n) => ({ value: Math.round(n), color: this.theme.yTick }),
     );
     tickValues.shift(); // remove first item, 0 volume
@@ -139,7 +140,6 @@ export class VolumeDrawer extends Drawer {
   }
   @autoResetStyle()
   protected drawVolumes() {
-    const {  } = this;
     const { xScale } = this.chart;
     const { context: ctx, yScale, chartFrame, range } = this;
     const data = range.visible();
@@ -159,15 +159,6 @@ export class VolumeDrawer extends Drawer {
       width -= width * 0.2;
       ctx.fillRect(x - width / 2, y, width, height);
     });
-  }
-  protected resetYScale() {
-    const { chartFrame } = this;
-    this.yScale = scaleLinear()
-      .domain([0, this.maxValue])
-      .range([
-        chartFrame.y + chartFrame.height,
-        chartFrame.y + TITLE_MARGIN_BOTTOM * this.chart.options.resolution,
-      ]);
   }
   private drawTitle(i: number) {
     const data = this.range.visible();

@@ -55,7 +55,6 @@ export function createLinePlugin(
           1 * this.pluginHost.chart.options.resolution,
         );
       });
-
       this.drawTitle(
         this.pluginHost.selectedIndex || this.pluginHost.range.visible().length - 1,
       );
@@ -66,12 +65,13 @@ export function createLinePlugin(
       const d = data[i];
       if (data.length > 0) {
         config.lineData.forEach(({ key }, i) => {
+          // if (key === 'k') debugger;
           const n = (d as any)[config.dataObjectKey][key] || 0;
           this.titleDrawer.setLabel(i, config.detailMapper(key, n, i).label);
         });
         ctx.clearRect(0, frame.y, frame.width, this.pluginHost.titleHeight);
         this.titleDrawer.draw({
-          ...this.frame,
+          ...frame,
           height: this.pluginHost.titleHeight,
         });
       }

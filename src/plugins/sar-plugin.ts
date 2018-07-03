@@ -59,7 +59,7 @@ export function createSARPlugin(color = '#FF8E29', title = 'SAR'): ExclusiveDraw
         this.titleDrawer.setLabel(0,  `BB: ${n.toFixed(2)}`);
         ctx.clearRect(0, frame.y, frame.width, this.pluginHost.titleHeight);
         this.titleDrawer.draw({
-          ...this.frame,
+          ...frame,
           height: this.pluginHost.titleHeight,
         });
       }

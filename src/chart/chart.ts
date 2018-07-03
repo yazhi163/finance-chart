@@ -87,15 +87,13 @@ function createOptions(options: ChartOptions) {
     if (options.auxiliaryDrawers.length === 0) {
       options.mainRatio = 1;
     }
-  } else {
-    options.mainRatio = 0;
   }
   return Object.assign({}, {
     lastPrice: 0.01,
     data: [],
     tradeTimes: [],
     theme: ChartBlackTheme,
-    resolution: 1,
+    resolution: (window.devicePixelRatio || 1),
     count: 240,
     mainRatio: 0.6,
     mainDrawer: null,
@@ -271,9 +269,9 @@ export class Chart {
     if (!this.requestAnimationFrameId) {
       this.requestAnimationFrameId = requestAnimationFrame(() => {
         this.context.clearRect(0, 0, this.width, this.height);
-        // if (process.env.NODE_ENV === 'development') {
-        //   console.time('rendering cost');
-        // }
+        if (process.env.NODE_ENV === 'development') {
+          console.time('rendering cost');
+        }
         this.context.fillStyle = this.theme.background;
         this.context.fillRect(0, 0, this.width, this.height);
         this.mainDrawer && this.mainDrawer.update();
@@ -287,9 +285,9 @@ export class Chart {
           this.drawFrontSight();
         }
 
-        // if (process.env.NODE_ENV === 'development') {
-        //   console.timeEnd('rendering cost');
-        // }
+        if (process.env.NODE_ENV === 'development') {
+          console.timeEnd('rendering cost');
+        }
       });
     }
   }

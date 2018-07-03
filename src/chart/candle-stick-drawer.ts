@@ -37,8 +37,6 @@ export class CandleStickDrawer extends Drawer {
       for (let i = 0, lenI = data.length; i < lenI; ++i) {
         keys.forEach((key) => {
           const v = data[i][key];
-          // ma data may be null, ignore it
-          if (v === null) { return; }
           if (v < minV) {
             minV = v;
           } else if (v > maxV) {
@@ -66,17 +64,6 @@ export class CandleStickDrawer extends Drawer {
     super.draw();
     this.drawAxes();
     this.drawCandles();
-  }
-  protected drawYAxis() {
-    drawYAxis(
-      this.context,
-      divide(this.bottomValue(), this.topValue()).map((n) => ({ value: n, color: this.chart.theme.yTick})),
-      this.frame,
-      this.yScale,
-      this.chart.options.resolution,
-      true,
-      this.chart.theme.gridLine,
-    );
   }
   protected drawXAxis() {
     const tickValues = uniq(divide(0, this.count() - 1, 4)
@@ -117,7 +104,6 @@ export class CandleStickDrawer extends Drawer {
   }
   protected drawAxes() {
     this.drawXAxis();
-    this.drawYAxis();
   }
   @autoResetStyle()
   protected drawCandles() {

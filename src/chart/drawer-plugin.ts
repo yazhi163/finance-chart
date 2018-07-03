@@ -2,11 +2,7 @@ import { Rect } from '../graphic/primitive';
 import { Drawer } from './drawer';
 
 export class DrawerPlugin {
-  protected frame: Rect;
-  protected chartFrame: Rect;
   constructor(protected pluginHost: Drawer) {
-    this.frame = pluginHost.frame;
-    this.chartFrame = pluginHost.chartFrame;
   }
   public onSetRange() {
     // implement nothing
