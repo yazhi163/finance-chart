@@ -8,6 +8,8 @@ import {
   createKDJPlugin,
   createKDJYAxisPlugin,
   createMAPlugin,
+  createRSIPlugin,
+  createRSIYAxisPlugin,
   createSARPlugin,
   createSMAPlugin,
   createYAxisPlugin,
@@ -160,9 +162,9 @@ function createKLine() {
       },
     },
     auxiliaryDrawers: [
-      // {
-      //   constructor: CandleStickVolumeDrawer,
-      // },
+      {
+        constructor: CandleStickVolumeDrawer,
+      },
       {
         constructor: Drawer,
         options: {
@@ -181,6 +183,30 @@ function createKLine() {
               },
               {
                 key: 'j',
+                color: '#EC6ED9',
+              },
+            ]),
+          ],
+        },
+      },
+      {
+        constructor: Drawer,
+        options: {
+          plugins: [
+            createRSIYAxisPlugin(),
+          ],
+          exclusivePlugins: [
+            createRSIPlugin([
+              {
+                key: '1',
+                color: '#FF8E29',
+              },
+              {
+                key: '2',
+                color: '#ADE3F3',
+              },
+              {
+                key: '3',
                 color: '#EC6ED9',
               },
             ]),
@@ -217,5 +243,5 @@ function createKLine() {
     },
   });
 }
-// createTimeShare();
+createTimeShare();
 createKLine();
