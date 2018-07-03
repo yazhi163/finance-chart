@@ -29,7 +29,6 @@ export class CandleStickDrawer extends Drawer {
     return this._count;
   }
   public setRange(range: MovableRange<CandleStickData>) {
-    super.setRange(range);
     const data = range.visible();
     if (data.length > 0) {
       const keys: Array<'low'|'high'> = ['low', 'high'];
@@ -53,11 +52,7 @@ export class CandleStickDrawer extends Drawer {
       this.minValue = this.chart.lastPrice;
       this.maxValue = this.chart.lastPrice;
     }
-    this.resetYScale();
-  }
-  public resize(frame: Rect) {
-    super.resize(frame);
-    this.resetYScale();
+    super.setRange(range);
   }
   public getYAxisDetail(y: number): YAxisDetail {
     return {

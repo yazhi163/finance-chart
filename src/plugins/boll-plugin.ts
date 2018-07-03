@@ -1,4 +1,4 @@
-import { ExclusiveDrawerPluginConstructor } from '../index';
+import { ExclusiveDrawerPlugin, ExclusiveDrawerPluginConstructor } from '../chart/drawer-plugin';
 import { createLinePlugin, DatumColorMap, TitleBarTheme  } from './line-indicator-plugin';
 
 export function createBOLLPlugin(lineData: DatumColorMap[]): ExclusiveDrawerPluginConstructor {

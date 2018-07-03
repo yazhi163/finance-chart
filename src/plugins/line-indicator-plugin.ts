@@ -1,6 +1,7 @@
 import { trimNulls } from '../algorithm/arrays';
 import { ChartTitle } from '../chart/chart-title';
-import { Drawer, ExclusiveDrawerPlugin, ExclusiveDrawerPluginConstructor } from '../index';
+import { ExclusiveDrawerPlugin, ExclusiveDrawerPluginConstructor } from '../chart/drawer-plugin';
+import { Drawer } from '../index';
 import { drawLine } from '../paint-utils/index';
 
 export interface DatumColorMap {

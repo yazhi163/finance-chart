@@ -1,16 +1,16 @@
 import { max } from 'd3-array';
 import { scaleLinear } from 'd3-scale';
 import uniq from 'lodash.uniq';
-import { determineCandleColor } from '../algorithm/color';
-import { divide } from '../algorithm/divide';
-import { MovableRange } from '../algorithm/range';
-import { TITLE_MARGIN_BOTTOM } from '../constants/constants';
-import { Rect } from '../graphic/primitive';
-import { drawXAxis, drawYAxis } from '../paint-utils/index';
-import { autoResetStyle, Chart, ChartTheme, YAxisDetail } from './chart';
-import { ChartTitle } from './chart-title';
-import { CandleStickData, TimeShareData, VolumeData } from './data-structure';
-import { Drawer, DrawerOptions } from './drawer';
+import { drawXAxis, drawYAxis } from '../.././paint-utils/index';
+import { determineCandleColor } from '../../algorithm/color';
+import { divide } from '../../algorithm/divide';
+import { MovableRange } from '../../algorithm/range';
+import { TITLE_MARGIN_BOTTOM } from '../../constants/constants';
+import { Rect } from '../../graphic/primitive';
+import { autoResetStyle, Chart, ChartTheme, YAxisDetail } from '../chart';
+import { ChartTitle } from '../chart-title';
+import { CandleStickData, TimeShareData, VolumeData } from '../data-structure';
+import { Drawer, DrawerOptions } from '../drawer';
 
 export interface VolumeTheme extends ChartTheme {
   volume: {
@@ -74,19 +74,14 @@ export class VolumeDrawer extends Drawer {
   public calcDeltaPrice(currentValue: object, currentIndex: number, data: object[]): number {
     return 1;
   }
-  public resize(frame: Rect): void {
-    super.resize(frame);
-    this.resetYScale();
-  }
   public setRange(range: MovableRange<VolumeData>) {
-    super.setRange(range);
-    const data = this.range.visible();
+    const data = range.visible();
     if (data.length > 0) {
       this.maxValue = max(data, (d) => d.volume);
     } else {
       this.maxValue = 1000 * VolumeDrawer.proportion;
     }
-    this.resetYScale();
+    super.setRange(range);
   }
   public getYAxisDetail(y: number): YAxisDetail {
     return {

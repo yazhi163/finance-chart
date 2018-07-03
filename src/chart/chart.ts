@@ -19,7 +19,6 @@ import {
   Drawer,
   DrawerContructor,
   DrawerOptions,
-  DrawerPluginConstructor,
 } from './drawer';
 
 export interface YAxisDetail {

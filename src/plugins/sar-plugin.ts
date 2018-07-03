@@ -1,5 +1,6 @@
 import { ChartTitle } from '../chart/chart-title';
-import { CandleStickData, Drawer, ExclusiveDrawerPlugin, ExclusiveDrawerPluginConstructor } from '../index';
+import { ExclusiveDrawerPlugin, ExclusiveDrawerPluginConstructor } from '../chart/drawer-plugin';
+import { CandleStickData, Drawer } from '../index';
 
 export function createSARPlugin(color = '#FF8E29', title = 'SAR'): ExclusiveDrawerPluginConstructor {
   return class SARPlugin extends ExclusiveDrawerPlugin {
@@ -55,7 +56,7 @@ export function createSARPlugin(color = '#FF8E29', title = 'SAR'): ExclusiveDraw
       const d = data[i];
       if (data.length > 0) {
         const n = (d as any).sar.BB || 0;
-        this.titleDrawer.setLabel(0,  `BB: ${n}`);
+        this.titleDrawer.setLabel(0,  `BB: ${n.toFixed(2)}`);
         ctx.clearRect(0, frame.y, frame.width, this.pluginHost.titleHeight);
         this.titleDrawer.draw({
           ...this.frame,

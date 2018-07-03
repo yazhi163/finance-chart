@@ -97,62 +97,62 @@ function createKLine() {
       options: {
         plugins: [],
         exclusivePlugins: [
-          // createMAPlugin([
-          //   {
-          //     key: '5',
-          //     color: '#FF8E29',
-          //   },
-          //   {
-          //     key: '10',
-          //     color: '#ADE3F3',
-          //   },
-          //   {
-          //     key: '20',
-          //     color: '#EC6ED9',
-          //   },
-          //   {
-          //     key: '60',
-          //     color: '#01F46A',
-          //   },
-          // ]),
-          // createBOLLPlugin([
-          //   {
-          //     key: 'mid',
-          //     color: '#FF8E29',
-          //   },
-          //   {
-          //     key: 'upper',
-          //     color: '#ADE3F3',
-          //   },
-          //   {
-          //     key: 'lower',
-          //     color: '#EC6ED9',
-          //   },
-          // ]),
-          // createEMAPlugin([
-          //   {
-          //     key: '12',
-          //     color: '#FF8E29',
-          //   },
-          //   {
-          //     key: '50',
-          //     color: '#ADE3F3',
-          //   },
-          // ]),
-          // createSMAPlugin([
-          //   {
-          //     key: '5',
-          //     color: '#FF8E29',
-          //   },
-          //   {
-          //     key: '10',
-          //     color: '#ADE3F3',
-          //   },
-          //   {
-          //     key: '20',
-          //     color: '#EC6ED9',
-          //   },
-          // ]),
+          createMAPlugin([
+            {
+              key: '5',
+              color: '#FF8E29',
+            },
+            {
+              key: '10',
+              color: '#ADE3F3',
+            },
+            {
+              key: '20',
+              color: '#EC6ED9',
+            },
+            {
+              key: '60',
+              color: '#01F46A',
+            },
+          ]),
+          createBOLLPlugin([
+            {
+              key: 'mid',
+              color: '#FF8E29',
+            },
+            {
+              key: 'upper',
+              color: '#ADE3F3',
+            },
+            {
+              key: 'lower',
+              color: '#EC6ED9',
+            },
+          ]),
+          createEMAPlugin([
+            {
+              key: '12',
+              color: '#FF8E29',
+            },
+            {
+              key: '50',
+              color: '#ADE3F3',
+            },
+          ]),
+          createSMAPlugin([
+            {
+              key: '5',
+              color: '#FF8E29',
+            },
+            {
+              key: '10',
+              color: '#ADE3F3',
+            },
+            {
+              key: '20',
+              color: '#EC6ED9',
+            },
+          ]),
           createSARPlugin(),
         ],
       },
@@ -191,5 +191,5 @@ function createKLine() {
     },
   });
 }
-// createTimeShare();
+createTimeShare();
 createKLine();

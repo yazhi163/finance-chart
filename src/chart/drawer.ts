@@ -5,6 +5,12 @@ import { TITLE_HEIGHT, TITLE_MARGIN_BOTTOM, X_AXIS_HEIGHT } from '../constants/c
 import { Rect } from '../graphic/primitive';
 import { TradeTime } from '../index';
 import { Chart, YAxisDetail } from './chart';
+import {
+  DrawerPlugin,
+  DrawerPluginConstructor,
+  ExclusiveDrawerPlugin,
+  ExclusiveDrawerPluginConstructor,
+} from './drawer-plugin';
 
 export interface DrawerOptions {
     plugins: DrawerPluginConstructor[];
@@ -56,9 +62,12 @@ export class Drawer {
         this.titleHeight -
         this.xAxisTickHeight,
     };
+    this.resetYScale();
   }
   public setRange(range: MovableRange<object>) {
     this.range = range;
+    this.pluginCall('onSetRange');
+    this.resetYScale();
   }
   public select(i: number) {
     this.selectedIndex = i;
@@ -133,25 +142,3 @@ export class Drawer {
   }
 }
 export type DrawerContructor = typeof Drawer;
-
-export class DrawerPlugin {
-  protected frame: Rect;
-  protected chartFrame: Rect;
-  constructor(protected pluginHost: Drawer) {
-    this.frame = pluginHost.frame;
-    this.chartFrame = pluginHost.chartFrame;
-  }
-  public predraw() {
-    // implement nothing
-  }
-  public draw() {
-    // implement nothing
-  }
-  public postdraw() {
-    // implement nothing
-  }
-}
-export class ExclusiveDrawerPlugin extends DrawerPlugin {}
-
-export type DrawerPluginConstructor = typeof DrawerPlugin;
-export type ExclusiveDrawerPluginConstructor = typeof ExclusiveDrawerPlugin;

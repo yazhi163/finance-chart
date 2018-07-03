@@ -85,8 +85,7 @@ export class TimeShareDrawer extends Drawer {
     return this.tradeTime.totalMinutes();
   }
   public setRange(range: MovableRange<TimeShareData>) {
-    super.setRange(range);
-    const data = this.range.data;
+    const data = range.data;
     if (data.length > 0) {
       const merge = [...data.map((d) => d.price), ...data.map((d) => d.avg)];
       this.minValue = min(merge);
@@ -95,7 +94,7 @@ export class TimeShareDrawer extends Drawer {
       this.minValue = this.chart.lastPrice;
       this.maxValue = this.chart.lastPrice;
     }
-    this.resetYScale();
+    super.setRange(range);
   }
   @autoResetStyle()
   public drawFrontSight() {
@@ -113,10 +112,6 @@ export class TimeShareDrawer extends Drawer {
     ctx.arc(x, yScale(data[selectedIndex].avg), size, 0, Math.PI * 2);
     ctx.fillStyle = this.theme.timeShare.avg;
     ctx.fill();
-  }
-  public resize(frame: Rect) {
-    super.resize(frame);
-    this.resetYScale();
   }
   public getYAxisDetail(y: number): YAxisDetail {
     const value = this.yScale.invert(y);
